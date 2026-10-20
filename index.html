@@ -1,0 +1,1293 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recall UKMPPD</title>
+<style>
+:root{
+  --bg:#f6f5f2; --surface:#ffffff; --surface-2:#efede8; --text:#1d1c1a; --muted:#6b6862; --line:#dedbd3;
+  --accent:#2f5d8a; --accent-ink:#ffffff; --good:#2e7d4f; --good-bg:#e4f2e9; --bad:#b3372f; --bad-bg:#f8e4e1;
+  --warn:#9a6a00; --warn-bg:#fbf0d4; --shadow:0 1px 2px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.05);
+  --h1:#d6e4f2; --h2:#9fc0e2; --h3:#5b8fc4; --h4:#2f5d8a;
+  --touched:#e2b34a; --card-touched:#a9c6e4;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#141413; --surface:#1e1e1c; --surface-2:#282825; --text:#ecebe6; --muted:#a19e96; --line:#34332f;
+  --accent:#7fb0e0; --accent-ink:#0f1a26; --good:#7cc79a; --good-bg:#1d3326; --bad:#ec8f86; --bad-bg:#3a1f1c;
+  --warn:#e3bb5c; --warn-bg:#3a3018; --shadow:none;
+  --h1:#24364a; --h2:#2f5680; --h3:#4f86bd; --h4:#8dbbe8;
+  --touched:#a8822f; --card-touched:#3d6690;
+}}
+:root[data-theme="dark"]{
+  --bg:#141413; --surface:#1e1e1c; --surface-2:#282825; --text:#ecebe6; --muted:#a19e96; --line:#34332f;
+  --accent:#7fb0e0; --accent-ink:#0f1a26; --good:#7cc79a; --good-bg:#1d3326; --bad:#ec8f86; --bad-bg:#3a1f1c;
+  --warn:#e3bb5c; --warn-bg:#3a3018; --shadow:none;
+  --touched:#a8822f; --card-touched:#3d6690;
+  --h1:#24364a; --h2:#2f5680; --h3:#4f86bd; --h4:#8dbbe8;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:860px;margin:0 auto;padding:16px 16px 80px}
+header{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+header h1{font-size:20px;margin:0;letter-spacing:-.01em;cursor:pointer}
+header .sp{flex:1}
+button{font:inherit;color:inherit;cursor:pointer;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 14px;transition:background .15s,border-color .15s}
+button:hover{border-color:var(--muted)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+button.ghost{background:transparent}
+button:disabled{opacity:.45;cursor:default}
+.opt:disabled{opacity:1;cursor:default}
+.small{font-size:13px;padding:6px 10px}
+.muted{color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow);margin-bottom:14px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}
+.stat b{display:block;font-size:24px;font-variant-numeric:tabular-nums;line-height:1.2}
+.stat span{font-size:12px;color:var(--muted)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.subj{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.subj:first-of-type{border-top:0}
+.subjgrid{display:grid;grid-template-columns:1fr 1fr;column-gap:28px}
+.subjgrid .subj{border-top:1px solid var(--line)}
+.subjgrid .subj:nth-child(-n+2){border-top:0}
+.overall .ovl{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:14px;margin:12px 0 6px}
+.overall .ovl b{font-size:20px;font-variant-numeric:tabular-nums}
+.overall .bar{height:12px}
+.overall .bar.cardbar{height:8px;margin-top:0}
+@media (max-width:720px){.subjgrid{grid-template-columns:1fr}.subjgrid .subj:nth-child(2){border-top:1px solid var(--line)}}
+.subj .name{font-weight:600}
+.bar{height:6px;background:var(--surface-2);border-radius:99px;overflow:hidden;grid-column:1/-1;display:flex;gap:2px}
+.bar i{display:block;height:100%;background:var(--good);border-radius:99px;flex:none}
+.bar i.t{background:var(--touched)}
+.bar.cardbar{height:4px;margin-top:-2px}
+.bar.cardbar i{background:var(--accent)}
+.bar.cardbar i.t{background:var(--card-touched)}
+.barlab{grid-column:1/-1;display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:-4px}
+.barkey{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted);margin:-4px 0 4px}
+.barkey span::before{content:'';display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:var(--c)}
+.meta{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.pill{display:inline-block;font-size:12px;padding:2px 8px;border-radius:99px;background:var(--surface-2);color:var(--muted);margin-right:4px}
+.pill.flag{background:var(--warn-bg);color:var(--warn)}
+.stem{font-size:17px;margin:8px 0 14px;white-space:pre-line}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;display:flex;gap:10px;align-items:flex-start;padding:11px 14px}
+.opt .k{font-weight:700;color:var(--muted);min-width:18px}
+.opt.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+.opt.right{background:var(--good-bg);border-color:var(--good)}
+.opt.wrong{background:var(--bad-bg);border-color:var(--bad)}
+.conf{margin-top:14px}
+.conf .row button{flex:1;min-width:90px}
+.verdict{font-weight:700;font-size:18px;margin:14px 0 6px}
+.verdict.ok{color:var(--good)} .verdict.no{color:var(--bad)}
+.why{background:var(--surface-2);border-radius:10px;padding:12px 14px;margin:10px 0}
+.imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin:10px 0}
+.imgs figure{margin:0}
+.imgs img,.qimg{width:100%;border-radius:8px;border:1px solid var(--line);cursor:zoom-in;display:block;background:#fff}
+.imgs figcaption{font-size:12px;color:var(--muted);margin-top:4px}
+.cards-list{margin:8px 0 0;padding:0;list-style:none}
+.cards-list li{border-left:3px solid var(--accent);padding:6px 10px;margin:6px 0;background:var(--surface-2);border-radius:0 8px 8px 0;font-size:14px}
+.fc-q{font-size:20px;font-weight:600;margin:10px 0 18px}
+.fc-a{font-size:17px;padding:14px;background:var(--surface-2);border-radius:10px;margin-bottom:14px;white-space:pre-line}
+.grades{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.grades button{display:flex;flex-direction:column;align-items:center;gap:2px}
+.grades small{font-size:11px;color:var(--muted)}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;font-size:13px;color:var(--muted)}
+.progress{height:4px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin-bottom:14px}
+.progress i{display:block;height:100%;background:var(--accent)}
+#lightbox{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:10;padding:12px;cursor:zoom-out}
+#lightbox img{max-width:100%;max-height:100%;border-radius:6px;background:#fff}
+.weak{display:flex;flex-wrap:wrap;gap:6px}
+.kbd{font-size:11px;color:var(--muted);margin-top:10px}
+select{font:inherit;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px}
+h2{font-size:16px;margin:0 0 10px}
+.goal-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px}
+.goal-top b{font-size:22px;font-variant-numeric:tabular-nums}
+.goalbar{height:14px;background:var(--surface-2);border-radius:99px;overflow:hidden}
+.goalbar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.goalbar.done i{background:var(--good)}
+.mini{height:6px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin:4px 0 12px}
+.mini i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .4s}
+.mini.done i{background:var(--good)}
+.heat{display:grid;grid-template-rows:repeat(7,1fr);grid-auto-flow:column;grid-auto-columns:1fr;gap:3px;max-width:520px}
+.heat span{aspect-ratio:1;border-radius:3px;background:var(--surface-2);min-width:8px}
+.heat span[data-l="1"]{background:var(--h1)} .heat span[data-l="2"]{background:var(--h2)}
+.heat span[data-l="3"]{background:var(--h3)} .heat span[data-l="4"]{background:var(--h4)}
+.heat span.today{outline:2px solid var(--text);outline-offset:1px}
+.heat span.future{visibility:hidden}
+.legend{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--muted);margin-top:8px;flex-wrap:wrap}
+.legend span{width:11px;height:11px;border-radius:3px;display:inline-block;background:var(--surface-2)}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;font-size:13px;color:var(--muted)}
+.kpis b{display:block;font-size:18px;color:var(--text);font-variant-numeric:tabular-nums}
+#srchQ{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text);min-width:0}
+#srchQ:focus{outline:2px solid var(--accent);outline-offset:1px}
+.tour-hl{position:relative;z-index:21;outline:3px solid var(--accent);outline-offset:4px;box-shadow:0 0 0 9999px rgba(0,0,0,.35)}
+#tourBox{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);width:min(560px,calc(100% - 32px));z-index:30;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+#tourBox h3{margin:4px 0 6px;font-size:17px}#tourBox p{margin:0 0 12px;font-size:14px;line-height:1.55}
+.agree{display:grid;gap:10px;margin:14px 0;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);font-size:14px;line-height:1.5}
+.agree label{display:flex;gap:10px;align-items:flex-start;cursor:pointer}.agree input[type=checkbox],.agree input[type=radio]{margin-top:4px;flex:none;width:18px;height:18px}
+.agree.optional{background:transparent;border-style:dashed}
+.agree input:not([type=checkbox]):not([type=radio]),.agree select,.card select,.card input[type=number]{font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text)}
+.sus{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:6px 0;border-top:1px solid var(--line);font-size:13px}.sus label{margin-left:8px}
+#rTxt{width:100%;font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text);margin-bottom:6px}
+.mark.on{background:var(--warn-bg);border-color:var(--warn);color:var(--text)}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.sgrid figure{margin:0}.sgrid img{width:100%;border-radius:8px;border:1px solid var(--line);cursor:zoom-in;background:#fff}
+.sgrid figcaption{font-size:12px;color:var(--muted);line-height:1.35;margin-top:4px}
+.slist{list-style:none;padding:0;margin:0}.slist li{padding:10px 0;border-top:1px solid var(--line);font-size:14px}.slist li:first-child{border-top:0}
+.slist summary{cursor:pointer} mark{background:var(--warn-bg);color:inherit;border-radius:3px;padding:0 2px}
+.tth{font-size:15px;margin:18px 0 0;padding-top:14px;border-top:1px solid var(--line)}
+.tchart{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:8px;align-items:end}
+.tcol{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tstack{height:90px;width:100%;max-width:34px;display:flex;flex-direction:column;justify-content:flex-end;gap:2px;background:var(--surface-2);border-radius:6px;overflow:hidden}
+.tstack i{display:block;width:100%;border-radius:4px 4px 0 0}
+.tstack i.q{background:var(--good)} .tstack i.c{background:var(--accent)}
+.tcol .tv{color:var(--text);min-height:14px} .tcol .tl.today{color:var(--text);font-weight:600}
+#tip{position:fixed;pointer-events:none;background:var(--text);color:var(--bg);font-size:12px;padding:6px 9px;border-radius:8px;display:none;z-index:20;white-space:nowrap}
+#toast{position:fixed;left:50%;top:18px;transform:translate(-50%,-200%);visibility:hidden;background:var(--good);color:#fff;font-weight:700;padding:12px 18px;border-radius:12px;z-index:30;transition:transform .4s cubic-bezier(.2,.8,.2,1);box-shadow:0 6px 24px rgba(0,0,0,.2)}
+.notebox{margin-top:14px;border-top:1px dashed var(--line);padding-top:10px}
+.notebox summary{cursor:pointer;font-size:14px}
+.notebox textarea,.notebox input{width:100%;font:inherit;font-size:14px;color:var(--text);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px;margin:8px 0 6px}
+.sprint b{font-variant-numeric:tabular-nums}
+.left-today{display:flex;flex-direction:column;align-items:center;text-align:center;margin:14px 0 4px;padding:14px;border-radius:12px;background:var(--surface-2)}
+.left-today span{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.left-today b{font-size:40px;line-height:1.15;color:var(--accent);margin:2px 0}
+.left-today.done b{color:var(--good)}
+.left-today small{font-size:13px;color:var(--muted)}
+#toast.show{transform:translate(-50%,0);visibility:visible}
+@media (max-width:560px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .grades{grid-template-columns:repeat(2,1fr)}
+  .stem{font-size:16px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 id="home">Recall UKMPPD</h1>
+    <span class="sp"></span>
+    <button class="small ghost" id="tourBtn" title="Tur fitur" style="display:none">❓ Tur</button>
+    <button class="small ghost" id="themeBtn" title="Tema">◐</button>
+  </header>
+  <main id="app"></main>
+</div>
+<div id="lightbox"><img alt=""></div>
+<div id="tip"></div><div id="toast"></div>
+<input type="file" id="importFile" accept="application/json" hidden>
+<script>window.SHARE_BUILD=true;window.COLLECT_URL="https://script.google.com/macros/s/AKfycbxWXkrpLKvAOCoRUsR2jRh1tqkRK1gn7npp4z5HYPmkj48Kv4ysqJojELZDVDLnQ9eP/exec";window.APP_VER="2026-10-12";window.BANK_VER="1149q-10226094";</script>
+<script>
+// ---------- data loading (missing subject files are skipped, so the list can include unbuilt ones) ----------
+const DATA_FILES = ["endokrin","integumen1","integumen2","hematologi","nefrologi","muskulo","kardio","pulmo","geh","infeksi","neuro","psikiatri","pediatri","obgyn1","obgyn2","bedah","mata","tht","forensik","ikm"];
+window.DECKS = [];
+function loadData(){
+  return Promise.all([...DATA_FILES, "_sources", "_slides", "_extra", "_build"].map(s => new Promise(res => {
+    const el = document.createElement("script");
+    el.src = "data/" + s + ".js"; el.onload = res; el.onerror = res;
+    document.head.appendChild(el);
+  })));
+}
+
+// ---------- time (debug: ?now=+2d / +6h shifts the clock to test scheduling) ----------
+const OFFSET = (() => {
+  const m = /now=\+(\d+)([dhm])/.exec(location.search);
+  return m ? +m[1] * {d:864e5,h:36e5,m:6e4}[m[2]] : 0;
+})();
+const now = () => Date.now() + OFFSET;
+const DAY = 864e5, MIN = 6e4;
+const dayKey = t => new Date(t).toLocaleDateString("sv");
+
+// ---------- storage ----------
+// SHARE = friend build (tools/build_share.py injects window.SHARE_BUILD): own storage, goal-first onboarding,
+// no notes box, no export/import, no coretan. The owner's copy runs with SHARE = false (unchanged).
+const SHARE = !!window.SHARE_BUILD;
+const KEY = SHARE ? "recall-ukmppd-share-v1" : "mediko-recall-v1";
+const THEME_KEY = SHARE ? "recall-ukmppd-theme" : "mediko-theme";
+const COLLECT_URL = window.COLLECT_URL || "", COLLECT_FROM = "2027-02-01";   // collector URL (build injects); study data only sent from this date
+const APP_VER = window.APP_VER || "dev"; let BANK_VER = window.BANK_VER || "dev";   // BANK_VER gets "+<pack id>" when an update pack is applied
+let S = { items:{}, days:{}, dq:{}, time:{}, notes:[], custom:[], settings:{newPerDay:20, dailyGoal:50, sprint:true, deadline:"2026-10-31"} };
+// notes: [{t, qid, text}] written while studying, exported for Claude to turn into cards
+// custom: [{id:"<qid>#u<n>", qid, q, a, t}] flashcards the user wrote; scheduled like any card
+// days: date -> items answered (questions + cards); dq: date -> [questions answered, correct]
+// sprint: daily item goal follows the plan (new questions + re-asks + cards ≈ 1.8 items per new question)
+const goal = () => S.settings.sprint && Object.keys(Q).length ? Math.max(S.settings.dailyGoal || 50, Math.round(sprintInfo().perDay * 1.8)) : (S.settings.dailyGoal || 50);
+const todayCount = () => S.days[dayKey(now())] || 0;
+function load(){
+  const def = S.settings;
+  try{ const r = localStorage.getItem(KEY); if(r) S = Object.assign(S, JSON.parse(r)); }catch(e){}
+  S.dq = S.dq || {}; S.notes = S.notes || []; S.custom = S.custom || []; S.time = S.time || {}; S.marks = S.marks || {}; S.log = S.log || []; S.outbox = S.outbox || []; S.reports = S.reports || []; S.probe = S.probe || {};
+  S.settings = Object.assign({}, def, S.settings);   // new settings keys get defaults
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+
+// ---------- index ----------
+let Q = {};          // qid -> question (+ deck)
+let CARDS = {};      // cardId -> {q,a,qid}
+function buildIndex(){
+  const ord = s => { const i = DATA_FILES.indexOf(s); return i < 0 ? 999 : i; };          // decks added by an update pack go last
+  window.DECKS.sort((a,b) => ord(a.slug) - ord(b.slug));  // scripts load async
+  for(const d of window.DECKS){
+    d.questions.forEach(q => {
+      q.deck = d; Q[q.id] = q;
+      (q.cards||[]).forEach((c,i) => { if(!c.del) CARDS[q.id+"#"+i] = {...c, qid:q.id}; });   // {"del":true} = deleted card (keeps later indices stable)
+    });
+  }
+  for(const c of S.custom) if(Q[c.qid]) CARDS[c.id] = c;
+}
+// ---------- sprint (finish every question once by the deadline; reviews pushed later) ----------
+function sprintInfo(){
+  const seen = Object.keys(Q).filter(id => S.items[id]).length;
+  const remaining = Object.keys(Q).length - seen;          // total is counted from the loaded data (no manual constant)
+  const end = new Date(S.settings.deadline + "T23:59:59").getTime();
+  const daysLeft = Math.max(1, Math.ceil((end - now()) / DAY));
+  const perDay = Math.ceil((remaining + newToday()) / daysLeft);   // includes what was already done today
+  return {seen, remaining, daysLeft, perDay};
+}
+function newLimit(){ return S.settings.sprint ? sprintInfo().perDay : S.settings.newPerDay; }
+// minutes: new question ≈ 1.75 (answer + read explanation), review question ≈ 0.75, flashcard ≈ 0.3, re-ask after a miss ≈ 1
+function estimateMinutes(newCount, dueQ, dueC){ return Math.round(newCount*1.75 + newCount*0.35*1.0 + newCount*0.35*1.5*0.3 + dueQ*0.75 + dueC*0.3); }
+const cardIds = q => (q.cards||[]).flatMap((c, i) => c.del ? [] : [q.id + "#" + i]);   // questions without cards: the re-ask itself does the work
+const SKDI_RANK = {"4A":0,"4":0,"3B":1,"3A":2,"3":2,"2":3,"1":4};
+
+// ---------- SRS (SM-2 style with learning steps) ----------
+const STEPS = [10*MIN, 1*DAY];
+function st(id){ return S.items[id]; }
+function newState(){ return {due:0, ivl:0, ease:2.5, reps:0, lapses:0, step:0, learning:true, hist:[]}; }
+// grade: 0 again, 1 hard, 2 good, 3 easy
+function schedule(s, g, t){
+  if(S.settings.sprint) return scheduleSprint(s, g, t);
+  s = {...s};
+  if(g === 0){
+    s.lapses += s.reps ? 1 : 0; s.learning = true; s.step = 0;
+    s.ease = Math.max(1.3, s.ease - .2); s.ivl = 0; s.due = t + STEPS[0];
+  } else if(s.learning){
+    if(g === 3){ s.learning = false; s.ivl = 4; s.due = t + 4*DAY; }
+    else if(g === 1){ s.due = t + STEPS[s.step]; }
+    else {
+      s.step++;
+      if(s.step >= STEPS.length){ s.learning = false; s.ivl = 1; s.due = t + DAY; }
+      else s.due = t + STEPS[s.step];
+    }
+  } else {
+    if(g === 1){ s.ease = Math.max(1.3, s.ease - .15); s.ivl = Math.max(1, s.ivl * 1.2); }
+    if(g === 2){ s.ivl = Math.max(s.ivl + 1, s.ivl * s.ease); }
+    if(g === 3){ s.ease += .15; s.ivl = Math.max(s.ivl + 2, s.ivl * s.ease * 1.3); }
+    s.ivl = Math.round(s.ivl); s.due = t + s.ivl * DAY;
+  }
+  s.reps++;
+  return s;
+}
+// Sprint: a miss comes back ~3 minutes later in the same session until answered correctly once;
+// after that, reviews are spaced wide (2–7+ days) so daily time goes to NEW material.
+function scheduleSprint(s, g, t){
+  s = {...s};
+  if(g === 0){
+    s.lapses += s.reps ? 1 : 0; s.learning = true; s.step = 0;
+    s.ease = Math.max(1.3, s.ease - .2); s.ivl = 0; s.due = t + 3*MIN;
+  } else if(s.learning){
+    s.learning = false;
+    s.ivl = g === 3 ? 7 : g === 2 ? (s.reps === 0 ? 7 : 3) : 2;   // first-try confident correct → 7 days
+    s.due = t + s.ivl*DAY;
+  } else {
+    if(g === 1){ s.ease = Math.max(1.3, s.ease - .15); s.ivl = Math.max(2, s.ivl * 1.2); }
+    if(g === 2){ s.ivl = Math.max(s.ivl + 2, s.ivl * s.ease); }
+    if(g === 3){ s.ease += .15; s.ivl = Math.max(s.ivl + 4, s.ivl * s.ease * 1.3); }
+    s.ivl = Math.round(s.ivl); s.due = t + s.ivl * DAY;
+  }
+  s.reps++;
+  return s;
+}
+function fmtIvl(ms){
+  if(ms < 60*MIN) return Math.round(ms/MIN) + " mnt";
+  if(ms < DAY) return Math.round(ms/36e5) + " jam";
+  const d = Math.round(ms/DAY); return d < 31 ? d + " hr" : (d/30).toFixed(1).replace(".0","") + " bln";
+}
+function preview(id, g){ const s = st(id) || newState(); return fmtIvl(schedule(s, g, now()).due - now()); }
+function record(id, g, extra){
+  const t = now();
+  const s = schedule(st(id) || newState(), g, t);
+  s.hist = [...(s.hist||[]).slice(-19), [t, g, ...(extra?[extra]:[])]];
+  S.items[id] = s;
+  if(SHARE){ const q = Q[id.split("#")[0]];
+    dataLog({t, id, deck: q ? q.deck.slug : "", src: q ? (q.lat || "mediko") : "", kind: id.includes("#") ? "kartu" : "soal", mode: "belajar", g,
+      ok: extra && extra.pick !== undefined && q ? extra.pick === q.ans : undefined, conf: extra && extra.conf ? ({3:"yakin",2:"ragu",1:"tebak"})[extra.conf] : undefined,
+      ms: extra && extra.ms, changed: extra && extra.changed}); }
+  const k = dayKey(t), before = S.days[k]||0; S.days[k] = before + 1;
+  save();
+  if(before < goal() && before + 1 >= goal()) toast(`🎯 Target hari ini tercapai: ${goal()} item! 🔥 ${streak()} hari beruntun`);
+}
+
+// ---------- queues ----------
+function deckFilter(slug){ return q => !slug || q.deck.slug === slug; }
+function dueItems(slug){
+  const t = now(), out = [];
+  for(const [id,s] of Object.entries(S.items)){
+    if(s.due > t) continue;
+    const q = Q[id.split("#")[0]];
+    if(!q || (slug && q.deck.slug !== slug)) continue;
+    if(id.includes("#") && !CARDS[id]) continue;
+    out.push(id);
+  }
+  return out.sort((a,b) => S.items[a].due - S.items[b].due);
+}
+function newQuestions(slug){
+  return Object.values(Q).filter(q => !S.items[q.id] && deckFilter(slug)(q))
+    .sort((a,b) => (SKDI_RANK[a.skdi]??5) - (SKDI_RANK[b.skdi]??5) || DATA_FILES.indexOf(a.deck.slug) - DATA_FILES.indexOf(b.deck.slug) || a.p - b.p);
+}
+function newToday(){
+  const k = dayKey(now()); let n = 0;
+  for(const s of Object.values(S.items)) if(s.hist && s.hist[0] && dayKey(s.hist[0][0]) === k && !s.cardChild) n++;
+  return n;
+}
+function nextLearningDue(slug){
+  let m = Infinity;
+  for(const [id,s] of Object.entries(S.items)){ const q = Q[id.split("#")[0]]; if(q && (!slug || q.deck.slug === slug) && s.due < m) m = s.due; }
+  return m;
+}
+
+// ---------- session ----------
+let SES = null;
+function startSession(mode, slug){
+  SES = {mode, slug, done:0, right:0, wrong:0, startedNew:0};
+  next();
+}
+function pick(){
+  if(SES.mode === "list") return SES.queue.length ? SES.queue[0] : null;   // search → practice a fixed list
+  // modes: mix (due by date, new by SKDI) · random/rnew (everything shuffled across subjects) · deck · new · cards
+  const rnd = SES.mode === "random" || SES.mode === "rnew" || SES.mode === "randomq";
+  const extra = SES.mode === "new" || SES.mode === "rnew";      // +20 batch that ignores the daily limit
+  const noCards = extra || SES.mode === "randomq";                // randomq = random, questions only
+  const due = dueItems(SES.slug).filter(id => SES.mode !== "cards" || id.includes("#")).filter(id => !noCards || !id.includes("#"));
+  const one = arr => rnd ? arr[Math.floor(Math.random()*arr.length)] : arr[0];
+  const newOk = SES.mode !== "cards" && (extra ? SES.startedNew < 20 : newLimit() - newToday() > 0);
+  const n = newOk ? newQuestions(SES.slug) : [];
+  if(S.settings.sprint && SES.mode !== "cards"){
+    const relearn = due.filter(id => S.items[id].learning && !id.includes("#"));   // missed this session → until correct
+    if(relearn.length) return relearn[0];
+    const freshCards = SES.mode === "randomq" ? [] : due.filter(id => id.includes("#") && !S.items[id].reps);   // cards unlocked by a miss
+    if(freshCards.length) return freshCards[0];
+    if(n.length) return one(n).id;                                                // then new material
+    return due.length ? one(due) : null;                                          // then spaced reviews
+  }
+  if(due.length) return one(due);
+  return n.length ? one(n).id : null;
+}
+function next(){
+  if(SES.mode === "list" && SES.cur){                 // finished SES.cur: drop it; a missed question comes back at the end (max 2×)
+    const c = SES.cur, i = SES.queue.indexOf(c); if(i >= 0) SES.queue.splice(i, 1);
+    const h = (S.items[c] && S.items[c].hist) || [], last = h[h.length - 1];
+    if(!c.includes("#") && last && last[1] === 0 && (SES.again[c] = (SES.again[c]||0) + 1) <= 2) SES.queue.push(c);
+    SES.cur = null;
+  }
+  const id = pick();
+  if(!id) return renderDone();
+  SES.cur = id;
+  id.includes("#") ? renderCard(id) : renderQuestion(id);
+}
+
+// ---------- utils ----------
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const app = $("#app");
+const img = (q, p, kind) => `img/${q.deck.slug}/${kind||"p"}${String(p).padStart(3,"0")}.jpg`;
+// extra practice sources (MATERI/LATIHAN SOAL): q.lat = doc key, q.lp = page of the question, q.xp = pembahasan pages
+const latImg = (q, p) => `img/latihan/${q.lat}-p${String(p).padStart(3,"0")}.jpg`;
+const latName = q => (window.LATSRC && window.LATSRC[q.lat]) || q.lat;
+function shuffle(n){ const a=[...Array(n).keys()]; for(let i=n-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function zoom(src){ const lb=$("#lightbox"); lb.querySelector("img").src=src; lb.style.display="flex"; }
+$("#lightbox").onclick = () => $("#lightbox").style.display = "none";
+app.addEventListener("click", e => { const i = e.target.closest("img[data-zoom]"); if(i) zoom(i.src); });
+function topbar(){
+  const d = dueItems(SES.slug).length;
+  return `<div class="topbar"><span>${SES.slug ? esc(window.DECKS.find(x=>x.slug===SES.slug).name) : "Semua bab"} · ${SES.done} dijawab</span><span>${d} jatuh tempo</span><button class="small ghost" onclick="renderHome()">Selesai</button></div>
+  <div class="mini ${todayCount()>=goal()?"done":""}" title="Target hari ini"><i style="width:${Math.min(100,100*todayCount()/goal())}%"></i></div>`;
+}
+function toast(msg){
+  const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 3500);
+}
+
+// ---------- question view ----------
+let KEYH = null;
+
+// ---------- study-time tracking ----------
+// S.time = {"YYYY-MM-DD": {q: seconds on question/feedback screens, c: seconds on flashcard screens}}.
+// Counts only while a question/flashcard is on screen, the tab is visible, and there was
+// input (key/click/scroll/mouse/touch) in the last IDLE ms, so walking away stops the clock.
+let VIEW = null;                     // "q" | "c" | null (home/done)
+const TICK = 5000, IDLE = 2*MIN;
+let lastAct = Date.now(), lastSave = Date.now();
+["keydown","pointerdown","pointermove","wheel","scroll","touchstart"].forEach(ev => addEventListener(ev, () => lastAct = Date.now(), {passive:true, capture:true}));
+setInterval(() => {
+  if(!VIEW || document.visibilityState !== "visible" || Date.now() - lastAct > IDLE) return;
+  const k = dayKey(now()), d = S.time[k] = S.time[k] || {q:0, c:0};
+  d[VIEW] = (d[VIEW]||0) + TICK/1000;
+  if(Date.now() - lastSave > 30000){ save(); lastSave = Date.now(); }
+}, TICK);
+addEventListener("visibilitychange", () => { if(document.visibilityState === "hidden") save(); });
+addEventListener("pagehide", save);
+const fmtDur = sec => { const m = Math.round(sec/60); return m >= 60 ? `${Math.floor(m/60)} j ${m%60} mnt` : `${m} mnt`; };
+const dayTime = k => { const d = S.time[k] || {}; return {q: d.q||0, c: d.c||0}; };
+function renderQuestion(id){
+  VIEW = "q"; document.querySelectorAll(".tour-hl").forEach(e => e.classList.remove("tour-hl")); $("#tourBox")?.remove();
+  const q = Q[id], s = st(id);
+  const order = shuffle(q.opts.length);   // re-shuffled every time so position can't be memorized
+  let sel = null, changes = 0; const t0 = Date.now();
+  app.innerHTML = `${topbar()}
+  <div class="card">
+    <div>${s ? `<span class="pill">ulang · ${s.lapses} salah</span>` : `<span class="pill">baru</span>`}<span class="pill">${esc(q.deck.name)}</span>${(q.tags||[]).map(t=>`<span class="pill">${esc(t)}</span>`).join("")}${q.skdi?`<span class="pill">SKDI ${esc(q.skdi)}</span>`:""}${q.lat?`<span class="pill">${esc(latName(q))}</span>`:""}${q.src==="flag"?`<span class="pill flag">kunci perlu dicek</span>`:""}<span style="float:right">${markBtn(id)}</span></div>
+    <div class="stem">${esc(q.stem)}</div>
+    ${q.img ? `<img class="qimg" data-zoom src="${q.lat ? latImg(q,q.lp) : img(q,q.p)}" alt="Gambar soal">` : ""}
+    <div class="opts" style="margin-top:12px">${order.map((o,i)=>`<button class="opt" data-o="${o}"><span class="k">${"ABCDE"[i]}</span><span>${esc(q.opts[o])}</span></button>`).join("")}</div>
+    <div class="conf"><div class="muted" style="font-size:13px;margin-bottom:6px">Seberapa yakin? (jawab dulu, baru lihat)</div>
+      <div class="row"><button data-c="3" disabled>Yakin</button><button data-c="2" disabled>Ragu</button><button data-c="1" disabled>Tebak</button></div></div>
+    <div class="kbd">Keyboard: A–E pilih · 1 yakin · 2 ragu · 3 tebak</div>
+  </div>`;
+  const opts = [...app.querySelectorAll(".opt")], confs = [...app.querySelectorAll("[data-c]")];
+  wireMarks();
+  const choose = b => { if(sel !== null && sel !== +b.dataset.o) changes++; sel = +b.dataset.o; opts.forEach(x=>x.classList.toggle("sel", x===b)); confs.forEach(c=>c.disabled=false); };
+  opts.forEach(b => b.onclick = () => choose(b));
+  confs.forEach(c => c.onclick = () => submit(+c.dataset.c));
+  KEYH = e => {
+    const k = e.key.toUpperCase(), i = "ABCDE".indexOf(k);
+    if(i >= 0 && opts[i]) choose(opts[i]);
+    if(sel !== null && ["1","2","3"].includes(e.key)) submit(4 - +e.key);
+  };
+  function submit(conf){
+    const ok = sel === q.ans;
+    // auto-grade from correctness + confidence (hypercorrection: confident misses go straight back to step 0)
+    const g = !ok ? 0 : conf === 3 ? 2 : conf === 2 ? 1 : 1;
+    const wasNew = !S.items[id];
+    record(id, g, {pick:sel, conf, ms: Date.now() - t0, changed: changes > 0});
+    { const dk = dayKey(now()), d = S.dq[dk] || [0,0]; d[0]++; if(ok) d[1]++; S.dq[dk] = d; save(); }
+    if(wasNew) SES.startedNew++;
+    SES.done++; ok ? SES.right++ : SES.wrong++;
+    // unlock this question's flashcards on a miss or a guess
+    let unlocked = [];
+    if(!ok || conf === 1){
+      for(const cid of cardIds(q)){
+        // new cards come up a few minutes later in the same session (right after the re-ask)
+        if(!S.items[cid]){ S.items[cid] = {...newState(), due: now() + 4*MIN, cardChild:true}; unlocked.push(CARDS[cid]); }
+        else if(!ok){ S.items[cid].due = Math.min(S.items[cid].due, now() + 4*MIN); }
+      }
+      save();
+    }
+    renderFeedback(q, order, sel, ok, conf, unlocked);
+  }
+}
+function renderFeedback(q, order, sel, ok, conf, unlocked){
+  const box = app.querySelector(".card");
+  app.querySelectorAll(".opt").forEach(b => {
+    const o = +b.dataset.o; b.disabled = true;
+    if(o === q.ans) b.classList.add("right"); else if(o === sel) b.classList.add("wrong");
+  });
+  app.querySelector(".conf").remove(); app.querySelector(".kbd").remove();
+  const letter = "ABCDE"[order.indexOf(q.ans)];
+  const msg = ok ? (conf===1 ? "Benar, tapi menebak. Kartu ditambahkan." : "Benar!") : (conf===3 ? "Salah padahal yakin. Ini yang paling penting untuk diingat." : "Belum tepat.");
+  box.insertAdjacentHTML("beforeend", `
+    <div class="verdict ${ok?"ok":"no"}">${msg}</div>
+    <div>Jawaban: <b>${letter}. ${esc(q.opts[q.ans])}</b></div>
+    <div class="why">${esc(q.why)}</div>
+    ${q.src==="flag"?`<div class="pill flag">${SHARE ? "Kunci belum pasti, cek sumber lain." : "Kunci belum pasti. Cek coretan dosen."}</div>`:""}
+    <div class="imgs">
+      ${(q.ref||[]).map(p=>`<figure><img data-zoom loading="lazy" src="${img(q,p)}" alt="Slide ${p}"><figcaption>Slide ${p} (materi)</figcaption></figure>`).join("")}
+      ${q.cp && !SHARE?`<figure><img data-zoom loading="lazy" src="${img(q,q.cp,"c")}" alt="Coretan"><figcaption>Coretan dosen (soal)</figcaption></figure>`:""}
+      ${(q.xp||[]).map(p=>`<figure><img data-zoom loading="lazy" src="${latImg(q,p)}" alt="Pembahasan"><figcaption>Pembahasan · ${esc(latName(q))} hal. ${p}</figcaption></figure>`).join("")}
+      ${(window.EXTRA||[]).filter(x => (x.qids||[]).includes(q.id)).map(x=>`<figure><img data-zoom loading="lazy" src="${x.src}" alt=""><figcaption>Materi tambahan · ${esc(x.title)}</figcaption></figure>`).join("")}
+      ${q.lat?`<figure><img data-zoom loading="lazy" src="${latImg(q,q.lp)}" alt="Soal asli"><figcaption>Soal asli · ${esc(latName(q))} hal. ${q.lp}</figcaption></figure>`:""}
+    </div>
+    ${unlocked.length?`<div class="muted" style="font-size:13px;margin-top:8px">Flashcard baru (muncul lagi ±4 menit, setelah soal ini diulang):</div><ul class="cards-list">${unlocked.map(c=>`<li><b>${esc(c.q)}</b><br>${esc(c.a)}</li>`).join("")}</ul>`:""}
+    ${noteBox(q.id)}
+    ${reportBox(q.id)}
+    <div class="row" style="margin-top:14px"><button class="primary" id="nx">Lanjut →</button>${markBtn(q.id)}<span class="muted" style="font-size:13px">muncul lagi dalam ${fmtIvl(st(q.id).due-now())}</span></div>`);
+  $("#nx").onclick = next; $("#nx").focus(); wireNoteBox(q.id); wireReportBox(q.id); wireMarks();
+  KEYH = e => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); next(); } };
+}
+
+// ---------- flashcard view ----------
+function noteBox(qid){
+  const n = S.notes.filter(x => x.qid === qid).length, u = S.custom.filter(x => x.qid === qid).length;
+  if(SHARE) return `<details class="notebox"><summary class="muted">✍️ Buat flashcard sendiri${u?` (${u} kartu)`:""}</summary>
+    <input id="ucQ" placeholder="Pertanyaan (mis. Dosis PTU krisis tiroid?)"><input id="ucA" placeholder="Jawaban">
+    <div class="row"><button class="small" id="ucSave">Buat flashcard</button><span class="muted" id="ntMsg" style="font-size:12px"></span></div>
+  </details>`;
+  return `<details class="notebox"><summary class="muted">✍️ Catatan / flashcard sendiri${n||u?` (${n} catatan, ${u} kartu)`:""}</summary>
+    <textarea id="nt" rows="3" placeholder="Catatan untuk Claude: apa yang membingungkan, fakta yang ingin ditekankan, minta dibuatkan flashcard…"></textarea>
+    <div class="row"><button class="small" id="ntSave">Simpan catatan</button><span class="muted" id="ntMsg" style="font-size:12px"></span></div>
+    <div class="muted" style="font-size:13px;margin-top:10px">Atau buat flashcard sendiri sekarang:</div>
+    <input id="ucQ" placeholder="Pertanyaan (mis. Dosis PTU krisis tiroid?)"><input id="ucA" placeholder="Jawaban">
+    <div class="row"><button class="small" id="ucSave">Buat flashcard</button></div>
+  </details>`;
+}
+function wireNoteBox(qid){
+  const msg = t => { $("#ntMsg").textContent = t; };
+  if($("#ntSave")) $("#ntSave").onclick = () => {
+    const text = $("#nt").value.trim(); if(!text) return;
+    S.notes.push({t: now(), qid, text}); save(); $("#nt").value = ""; msg("Tersimpan ✓ (" + S.notes.length + " catatan)");
+  };
+  $("#ucSave").onclick = () => {
+    const q = $("#ucQ").value.trim(), a = $("#ucA").value.trim(); if(!q || !a) return;
+    const id = `${qid}#u${S.custom.filter(x => x.qid === qid).length}`;
+    const card = {id, qid, q, a, t: now()};
+    S.custom.push(card); CARDS[id] = card;
+    S.items[id] = {...newState(), due: now() + (S.settings.sprint ? DAY : 0), cardChild:true};
+    save(); $("#ucQ").value = ""; $("#ucA").value = ""; msg("Flashcard dibuat ✓");
+  };
+}
+function renderCard(cid){
+  VIEW = "c";
+  const c = CARDS[cid], q = Q[c.qid];
+  app.innerHTML = `${topbar()}
+  <div class="card">
+    <span class="pill">flashcard</span><span class="pill">${esc(q.deck.name)}</span>${(q.tags||[]).map(t=>`<span class="pill">${esc(t)}</span>`).join("")}
+    <div class="fc-q">${esc(c.q)}</div>
+    <div id="ans"><button class="primary" id="show">Tampilkan jawaban</button><div class="kbd">Ingat dulu jawabannya, lalu tekan Spasi</div></div>
+  </div>`;
+  const show = () => {
+    $("#ans").innerHTML = `<div class="fc-a">${esc(c.a)}</div>
+      <details><summary class="muted" style="cursor:pointer;font-size:14px">Lihat slide</summary><div class="imgs">${(q.ref||[]).map(p=>`<figure><img data-zoom loading="lazy" src="${img(q,p)}" alt=""><figcaption>Slide ${p}</figcaption></figure>`).join("")}</div></details>
+      <div class="grades" style="margin-top:12px">${["Lupa","Sulit","Ingat","Mudah"].map((l,g)=>`<button data-g="${g}">${l}<small>${preview(cid,g)}</small></button>`).join("")}</div>
+      <div class="kbd">1 lupa · 2 sulit · 3 ingat · 4 mudah</div>${noteBox(c.qid)}`;
+    wireNoteBox(c.qid);
+    app.querySelectorAll("[data-g]").forEach(b => b.onclick = () => grade(+b.dataset.g));
+    KEYH = e => { if("1234".includes(e.key) && e.key) grade(+e.key - 1); };
+  };
+  const tc0 = Date.now();
+  const grade = g => { record(cid, g, {ms: Date.now() - tc0}); S.items[cid].cardChild = true; save(); SES.done++; next(); };
+  $("#show").onclick = show;
+  KEYH = e => { if(e.key === " " || e.key === "Enter"){ e.preventDefault(); show(); } };
+}
+
+// ---------- done ----------
+function renderDone(){
+  VIEW = null;
+  const nd = nextLearningDue(SES.slug);
+  const acc = SES.right + SES.wrong ? Math.round(100*SES.right/(SES.right+SES.wrong)) : null;
+  app.innerHTML = `<div class="card"><h2>Sesi selesai 🎉</h2>
+    <p>${SES.done} item dijawab${acc!==null?` · akurasi soal ${acc}%`:""}.</p>
+    <p class="muted">${nd < Infinity ? `Item berikutnya jatuh tempo dalam ${fmtIvl(Math.max(0,nd-now()))}.` : ""} ${SES.mode!=="new" && newQuestions(SES.slug).length ? `Batas soal baru hari ini (${newLimit()}) sudah tercapai. Ubah di pengaturan atau pakai "Soal baru".` : ""}</p>
+    <div class="row"><button class="primary" onclick="renderHome()">Kembali</button>${SES.mode==="list" && SES.query ? `<button onclick="renderSearch(SES.query)">← Kembali ke pencarian "${esc(SES.query)}"</button>` : ""}${newQuestions(SES.slug).length?`<button onclick="startSession(SES.slug ? 'new' : 'rnew', SES.slug)">+20 soal baru${SES.slug?"":" (acak)"}</button>`:""}</div></div>`;
+  KEYH = null;
+}
+
+// ---------- outbox: small messages to the Google Sheet collector (tools/collect/Code.gs) ----------
+// Used for: consent status (SHARE, sent right when chosen → usage count), question reports and feature
+// suggestions. Kept in S.outbox until a send succeeds; retried on every home render / when back online.
+const getUid = () => S.settings.uid || (S.settings.uid = (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2)));
+function queue(msg){ S.outbox.push({...msg, at: now()}); save(); flushOutbox(); }
+let FLUSHING = false;
+async function postCollect(body){
+  await fetch(COLLECT_URL, {method: "POST", mode: "no-cors", headers: {"Content-Type": "text/plain;charset=utf-8"},
+    body: JSON.stringify({uid: getUid(), ver: APP_VER, bank: BANK_VER, ...body})});
+}
+async function flushOutbox(){
+  if(FLUSHING || !COLLECT_URL || !S.outbox.length || navigator.onLine === false) return;
+  FLUSHING = true;
+  try{ while(S.outbox.length){ await postCollect(S.outbox[0]); S.outbox.shift(); save(); } }
+  catch(e){ /* offline or blocked: keep the rest, retry later */ }
+  FLUSHING = false;
+}
+addEventListener("online", () => flushOutbox());
+
+// ---------- report a question / suggest a feature ----------
+const REPORT_KINDS = ["Kunci salah", "Pembahasan kurang/keliru", "Soal tidak jelas", "Gambar tidak sesuai/hilang", "Lainnya"];
+function reportBox(qid){
+  return `<details class="notebox"><summary class="muted">⚠️ Laporkan soal ini</summary>
+    <div class="row" style="flex-wrap:wrap;gap:6px;margin:6px 0">${REPORT_KINDS.map((k,i)=>`<label style="font-size:13px"><input type="radio" name="rk" value="${k}" ${i?"":""}> ${k}</label>`).join("")}</div>
+    <textarea id="rTxt" rows="2" placeholder="Jelaskan singkat (mis. kunci seharusnya C karena…)"></textarea>
+    <div class="row"><button class="small" id="rSend">Kirim laporan</button><span class="muted" id="rMsg" style="font-size:12px"></span></div></details>`;
+}
+function wireReportBox(qid){
+  if(!$("#rSend")) return;
+  $("#rSend").onclick = () => {
+    const kind = (document.querySelector('input[name="rk"]:checked') || {}).value, text = $("#rTxt").value.trim();
+    if(!kind && !text){ $("#rMsg").textContent = "Pilih jenis masalah atau tulis komentar."; return; }
+    const q = Q[qid], r = {t: now(), qid, deck: q ? q.deck.slug : "", src: q ? (q.lat || "mediko") : "", kind: kind || "Lainnya", text};
+    S.reports.push(r);
+    if(SHARE) queue({type: "laporan", ...r});
+    save(); $("#rTxt").value = ""; document.querySelectorAll('input[name="rk"]').forEach(x => x.checked = false);
+    $("#rMsg").textContent = SHARE ? (COLLECT_URL ? "Terkirim, terima kasih! 🙏" : "Tersimpan; akan terkirim otomatis saat tersedia.") : "Tersimpan ✓ (ikut di Export catatan)";
+  };
+}
+
+// ---------- study-data consent (SHARE). Explicit choice at onboarding; the choice itself (no identity) is
+// sent right away so the number of users is known. Study data stays on the device (S.log) until COLLECT_FROM. ----------
+const dataOn = () => SHARE && S.settings.data && S.settings.data.consent === "bersedia";
+const collectOpen = () => dayKey(now()) >= COLLECT_FROM;
+const DATA_TEXT = `<div style="font-size:14px;line-height:1.55;margin:4px 0 8px">Bersediakah kamu membagikan data penggunaanmu untuk kajian pembelajaran kedokteran? Data akan dianalisis untuk melihat penyakit/topik yang masih menjadi gap dalam pendidikan kedokteran, dan hasilnya (tanpa identitas) diteruskan kepada MEU.</div>
+<details class="muted" style="font-size:13px"><summary style="cursor:pointer">Detail</summary><ul style="margin:6px 0 0;padding-left:18px">
+<li>Sekarang dikirim: pilihan Ya/Tidak (untuk menghitung jumlah pengguna), dan bila Ya, nama panggilan, email & WA (untuk menghubungimu nanti).</li>
+<li>Jawaban & waktu belajarmu disimpan di perangkatmu saja, lalu baru dikirim ± Februari 2027 saat kamu menekan tombol kirim.</li>
+<li>Pilihan bisa diubah kapan saja di Pengaturan.</li></ul></details>`;
+function dataLog(ev){ if(dataOn()) S.log.push({ver: APP_VER, bank: BANK_VER, ...ev}); }
+function setConsent(d){                 // store + send the status ping (only if the choice changed) + contact (if it changed)
+  const prev = S.settings.data || {}, changed = prev.consent !== d.consent;
+  if(d.consent === "tidak") d = {...d, nick: "", email: "", wa: ""};     // opting out blanks the Kontak row
+  const c = S.settings.data = {...prev, ...d, at: changed ? dayKey(now()) : prev.at};
+  getUid(); save();
+  if(changed) queue({type: "status", consent: c.consent, consentAt: c.at});
+  if(!c.kontakQ || ["nick", "email", "wa"].some(k => (c[k] || "") !== (prev[k] || ""))) sendKontak();
+}
+function sendKontak(){                    // contact goes to the Kontak tab right away (also for consents given before this existed)
+  const c = S.settings.data; if(!c || (c.consent !== "bersedia" && !c.kontakQ)) return;
+  c.kontakQ = true; queue({type: "kontak", nick: c.nick || "", email: c.email || "", wa: c.wa || ""});
+}
+function dataChoiceHtml(){
+  const d = S.settings.data || {};
+  return `<div class="agree optional" id="dataBox"><div>${DATA_TEXT}</div>
+    <label><input type="radio" name="dc" value="bersedia" ${d.consent==="bersedia"?"checked":""}><span>Ya, saya bersedia membantu</span></label>
+    <div id="dcYes" style="display:${d.consent==="bersedia"?"grid":"none"};gap:8px;padding-left:28px">
+      <input id="gNick" placeholder="Nama panggilan" value="${esc(d.nick||"")}">
+      <input id="gEmail" type="email" placeholder="Email" value="${esc(d.email||"")}">
+      <input id="gWa" placeholder="Nomor WA (08… / +62…)" value="${esc(d.wa||"")}">
+    </div>
+    <label><input type="radio" name="dc" value="tidak" ${d.consent==="tidak"?"checked":""}><span>Tidak, saya tidak ikut (aplikasi tetap bisa dipakai penuh)</span></label>
+    <div id="dcErr" style="font-size:12px;color:var(--bad)"></div></div>`;
+}
+function wireDataChoice(){
+  app.querySelectorAll('input[name="dc"]').forEach(r => r.onchange = () => {
+    $("#dcYes").style.display = (document.querySelector('input[name="dc"]:checked')||{}).value === "bersedia" ? "grid" : "none"; $("#dcErr").textContent = ""; });
+}
+function readDataChoice(){            // validates + stores; false (with a message) when incomplete
+  const c = (document.querySelector('input[name="dc"]:checked') || {}).value, err = t => { $("#dcErr").textContent = t; return false; };
+  if(!c) return err("Pilih salah satu: bersedia atau tidak.");
+  if(c === "tidak"){ setConsent({consent: "tidak"}); return true; }
+  const nick = $("#gNick").value.trim(), email = $("#gEmail").value.trim(), wa = $("#gWa").value.replace(/[\s-]/g, "");
+  if(!nick) return err("Isi nama panggilan.");
+  if(!email) return err("Isi email.");
+  if(!wa) return err("Isi nomor WA.");
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return err("Format email belum benar.");
+  if(!/^(\+62|62|0)8\d{7,12}$/.test(wa)) return err("Nomor WA diawali 08… atau +62…");
+  setConsent({consent: "bersedia", nick, email, wa});
+  return true;
+}
+
+// fixed probe: 30 Mediko questions spread evenly over the bank (no image, no unsure key); frozen on first use.
+// Answered without feedback, never touches the SRS schedule.
+function probeIds(){
+  if(S.probe.ids) return S.probe.ids;
+  const pool = Object.values(Q).filter(q => !q.lat && !q.img && q.src !== "flag").sort((a,b) => a.id < b.id ? -1 : 1);
+  const step = pool.length / 30, ids = [];
+  for(let i = 0; i < 30; i++) ids.push(pool[Math.floor(i * step + step / 2)].id);
+  return ids;
+}
+const addDays = (d, n) => { const x = new Date(d + "T00:00"); x.setDate(x.getDate() + n); return x.toLocaleDateString("sv"); };
+const probeLabel = k => ({pretest: "Pre-test", retensi1: "Cek retensi bulan ke-1", retensi2: "Cek retensi bulan ke-2", retensi3: "Cek retensi menjelang target"})[k] || k;
+function probeDue(){
+  if(!dataOn() || collectOpen()) return null;
+  const runs = S.probe.runs || {}, today = dayKey(now());
+  if(!runs.pretest) return "pretest";
+  const base = runs.pretest.date;
+  if(!runs.retensi1 && today >= addDays(base, 30)) return "retensi1";
+  if(!runs.retensi2 && today >= addDays(base, 60)) return "retensi2";
+  if(!runs.retensi3 && S.settings.deadline && today >= addDays(S.settings.deadline, -7) && today >= addDays(base, 14)) return "retensi3";
+  return null;
+}
+let PROBE = null;
+function startProbe(key){
+  S.probe.ids = probeIds(); S.probe.runs = S.probe.runs || {};
+  PROBE = {key, ids: shuffle(S.probe.ids.length).map(i => S.probe.ids[i]), i: 0, answers: []}; renderProbe();
+}
+function renderProbe(){
+  VIEW = "q";
+  const P = PROBE, q = Q[P.ids[P.i]];
+  if(!q){ P.i++; return P.i < P.ids.length ? renderProbe() : finishProbe(); }
+  const order = shuffle(q.opts.length), t0 = Date.now(); let sel = null, changes = 0;
+  app.innerHTML = `<div class="topbar"><span>🧪 ${esc(probeLabel(P.key))} · ${P.i + 1}/${P.ids.length}</span><button class="small ghost" id="pQuit">Lanjutkan nanti</button></div>
+  <div class="card"><div class="muted" style="font-size:13px">Tes singkat tanpa pembahasan: jawab sebisanya tanpa membuka catatan. Tidak memengaruhi jadwal belajarmu.</div>
+    <div class="stem">${esc(q.stem)}</div>
+    <div class="opts" style="margin-top:12px">${order.map((o,i)=>`<button class="opt" data-o="${o}"><span class="k">${"ABCDE"[i]}</span><span>${esc(q.opts[o])}</span></button>`).join("")}</div>
+    <div class="conf"><div class="muted" style="font-size:13px;margin-bottom:6px">Seberapa yakin?</div>
+      <div class="row"><button data-c="3" disabled>Yakin</button><button data-c="2" disabled>Ragu</button><button data-c="1" disabled>Tebak</button></div></div></div>`;
+  const opts = [...app.querySelectorAll(".opt")], confs = [...app.querySelectorAll("[data-c]")];
+  const choose = b => { if(sel !== null && sel !== +b.dataset.o) changes++; sel = +b.dataset.o; opts.forEach(x=>x.classList.toggle("sel", x===b)); confs.forEach(c=>c.disabled=false); };
+  opts.forEach(b => b.onclick = () => choose(b));
+  const submit = conf => {
+    const a = {t: now(), id: q.id, deck: q.deck.slug, src: "mediko", kind: "soal", mode: P.key === "pretest" ? "pretest" : "retensi",
+               run: P.key, ok: sel === q.ans, conf: ({3:"yakin",2:"ragu",1:"tebak"})[conf], ms: Date.now() - t0, changed: changes > 0};
+    P.answers.push(a); P.i++;
+    P.i < P.ids.length ? renderProbe() : finishProbe();
+  };
+  confs.forEach(c => c.onclick = () => submit(+c.dataset.c));
+  KEYH = e => { const i = "ABCDE".indexOf(e.key.toUpperCase()); if(i >= 0 && opts[i]) choose(opts[i]); if(sel !== null && ["1","2","3"].includes(e.key)) submit(4 - +e.key); };
+  $("#pQuit").onclick = () => { PROBE = null; renderHome(); };   // an unfinished run is restarted later
+}
+function finishProbe(){
+  const P = PROBE, right = P.answers.filter(a => a.ok).length;
+  P.answers.forEach(dataLog);
+  S.probe.runs[P.key] = {date: dayKey(now()), n: P.answers.length, right}; save(); PROBE = null; VIEW = null; KEYH = null;
+  app.innerHTML = `<div class="card"><h2>🧪 ${esc(probeLabel(P.key))} selesai</h2>
+    <p>Skor: <b>${right}/${P.answers.length}</b>. ${P.key === "pretest" ? "Ini titik awalmu; nanti dibandingkan dengan cek retensi berikutnya." : `Pre-test kamu: ${(S.probe.runs.pretest||{}).right ?? "–"}/30.`}</p>
+    <p class="muted" style="font-size:13px">Terima kasih! Hasil disimpan di perangkat ini dan baru dikirim setelah UKMPPD.</p>
+    <button class="primary" onclick="renderHome()">Kembali</button></div>`;
+}
+
+// after COLLECT_FROM: one card to send everything (only for "bersedia")
+const SUS = ["Saya ingin sering memakai aplikasi ini", "Aplikasi ini terlalu rumit", "Aplikasi ini mudah dipakai", "Saya butuh bantuan orang lain untuk memakainya",
+  "Fitur-fiturnya terpadu dengan baik", "Banyak hal yang tidak konsisten", "Kebanyakan orang akan cepat bisa memakainya", "Aplikasi ini merepotkan",
+  "Saya percaya diri memakainya", "Saya perlu banyak belajar dulu sebelum bisa memakainya"];
+function dataSnapshot(){
+  const total = Object.keys(Q).length, seen = Object.keys(Q).filter(id => S.items[id]).length;
+  const mastered = Object.keys(Q).filter(id => { const x = S.items[id]; return x && !x.learning && x.ivl >= 21; }).length;
+  const days = {};
+  for(const k of new Set([...Object.keys(S.days), ...Object.keys(S.time)])) days[k] = [S.days[k]||0, ...(S.dq[k]||[0,0]), Math.round((S.time[k]||{}).q||0), Math.round((S.time[k]||{}).c||0)];
+  return {deadline: S.settings.deadline, total, seen, mastered, days};
+}
+async function sendData(btn){
+  const d = S.settings.data; if(!dataOn() || !COLLECT_URL || !collectOpen()) return;
+  btn.disabled = true; const msg = t => { $("#dMsg").textContent = t; };
+  try{
+    msg("Mengirim…");
+    await postCollect({type: "kontak", nick: d.nick, email: d.email, wa: d.wa});
+    if(d.survey) await postCollect({type: "survei", which: "awal", answers: d.survey});
+    if(d.endSurvey) await postCollect({type: "survei", which: "akhir", answers: d.endSurvey});
+    if(d.result) await postCollect({type: "hasil", answers: d.result});
+    let from = d.sent || 0;
+    while(from < S.log.length){ const ev = S.log.slice(from, from + 400); await postCollect({type: "jawaban", events: ev}); from += ev.length; d.sent = from; save(); msg(`Mengirim jawaban… ${from}/${S.log.length}`); }
+    await postCollect({type: "ringkasan", snap: dataSnapshot()});
+    d.sentAt = dayKey(now()); save(); toast("Terkirim. Terima kasih! 🙏"); renderHome();
+  }catch(e){ btn.disabled = false; msg("Gagal mengirim. Pastikan online, lalu coba lagi."); }
+}
+function dataCards(){
+  if(!SHARE || !S.settings.data) return "";
+  const d = S.settings.data, pd = probeDue(); let html = "";
+  if(pd) html += `<div class="card"><h2>🧪 ${esc(probeLabel(pd))}</h2>
+    <p class="muted" style="font-size:14px;margin-top:0">30 soal tetap, ± 20 menit, tanpa pembahasan dan tidak memengaruhi jadwal belajar. Dipakai untuk melihat perkembangan retensimu dari waktu ke waktu (sesuai persetujuanmu).</p>
+    <div class="row"><button class="primary" id="pStart">Mulai tes</button></div></div>`;
+  if(dataOn() && collectOpen() && !d.sentAt) html += `<div class="card"><h2>📤 UKMPPD sudah lewat: kirim data belajarmu</h2>
+    <p class="muted" style="font-size:14px;margin-top:0">Sesuai persetujuanmu (${esc(d.nick||"")}): ${S.log.length} jawaban, waktu belajar, tes singkat, survei. Isi survei singkat di bawah (± 3 menit), lalu kirim.</p>
+    <details open><summary><b>Hasil UKMPPD (opsional, sangat membantu)</b></summary>
+      <div class="row" style="margin-top:8px"><label>CBT <select id="rCbt"><option value="">–</option><option>lulus</option><option>tidak lulus</option><option>belum ujian</option></select></label>
+        <label>Skor CBT <input id="rCbtS" type="number" min="0" max="100" style="width:80px"></label>
+        <label>OSCE <select id="rOsce"><option value="">–</option><option>lulus</option><option>tidak lulus</option><option>belum ujian</option></select></label>
+        <label>Skor try-out terakhir <input id="rTo" type="number" min="0" max="100" style="width:80px"></label></div></details>
+    <details open><summary><b>Survei akhir</b>: 1 = sangat tidak setuju · 5 = sangat setuju</summary>
+      ${SUS.map((t,i)=>`<div class="sus"><span>${i+1}. ${t}</span><span>${[1,2,3,4,5].map(v=>`<label><input type="radio" name="sus${i}" value="${v}">${v}</label>`).join("")}</span></div>`).join("")}
+      <div class="sus"><span>Aplikasi ini membantu persiapan UKMPPD saya</span><span>${[1,2,3,4,5].map(v=>`<label><input type="radio" name="help" value="${v}">${v}</label>`).join("")}</span></div></details>
+    <div class="row" style="margin-top:10px"><button class="primary" id="dSend" ${COLLECT_URL?"":"disabled"}>Kirim sekarang</button><span class="muted" id="dMsg" style="font-size:13px"></span></div>
+    ${COLLECT_URL ? "" : `<div class="muted" style="font-size:12px">Alamat pengiriman belum ada di versi ini; tunggu versi terbaru dari teman yang membagikan aplikasi.</div>`}</div>`;
+  return html;
+}
+function wireDataCards(){
+  if($("#pStart")) $("#pStart").onclick = () => startProbe(probeDue());
+  if($("#dSend")) $("#dSend").onclick = e => {
+    const d = S.settings.data, v = n => (document.querySelector(`input[name="${n}"]:checked`) || {}).value || "";
+    d.result = {cbt: $("#rCbt").value, cbt_skor: $("#rCbtS").value, osce: $("#rOsce").value, tryout_skor: $("#rTo").value};
+    d.endSurvey = {sus: SUS.map((_,i) => v("sus"+i)), membantu: v("help")};
+    save(); sendData(e.target);
+  };
+}
+
+// ---------- goal (SHARE builds: first screen = choose when to finish all questions) ----------
+function renderGoal(){
+  KEYH = null; VIEW = null;
+  const total = Object.keys(Q).length, t = new Date(now());
+  const iso = d => d.toLocaleDateString("sv");
+  const plus = n => { const d = new Date(t); d.setDate(d.getDate() + n); return iso(d); };
+  const DEFAULT_GOAL = "2026-11-30";   // default finish date shown to friends (falls back to +30 days once it has passed)
+  const cur = S.settings.goalSet ? S.settings.deadline : (DEFAULT_GOAL > plus(1) ? DEFAULT_GOAL : plus(30));
+  app.innerHTML = `<div class="card goal-card">
+    <h2>🎯 Kapan kamu mau selesai semua soal?</h2>
+    <p class="muted" style="margin-top:0">${total} soal UKMPPD dari ${window.DECKS.length} bab. Pilih tanggal target; aplikasi akan membagi soal baru per hari dan memperkirakan waktu belajarmu.</p>
+    <div class="row"><label style="font-weight:600">Target selesai <input type="date" id="gdl" value="${cur}" min="${plus(1)}"></label>
+      ${[14,30,45,60].map(n=>`<button class="small ghost" data-days="${n}">${n} hari</button>`).join("")}</div>
+    <div class="left-today" id="gprev"></div>
+    <ul class="muted" style="font-size:14px;line-height:1.6;padding-left:18px">
+      <li>Jawab soal, lalu pilih seberapa yakin (yakin / ragu / tebak).</li>
+      <li>Setelah menjawab: pembahasan + slide materi.</li>
+      <li>Salah atau menebak → flashcard terbuka, soal diulang sampai benar, lalu dijadwalkan ulang (spaced repetition).</li>
+      <li>Progres tersimpan otomatis di browser ini.</li>
+    </ul>
+    <div class="agree">
+      <label><input type="checkbox" class="agr" ${S.settings.agreed?"checked":""}><span>Saya paham aplikasi ini hanya untuk belajar pribadi. Materi slide dan soal di dalamnya milik penyusunnya masing-masing, sehingga tidak akan saya jual, unggah ke tempat publik, atau sebarkan di luar teman belajar.</span></label>
+      <label><input type="checkbox" class="agr" ${S.settings.agreed?"checked":""}><span>Saya bersedia memberi usul perbaikan aplikasi dan berbagi materi/soal bila punya, ke teman yang membagikan aplikasi ini, supaya kita semua bisa belajar bersama.</span></label>
+    </div>
+    ${SHARE ? dataChoiceHtml() : ""}
+    <div class="row"><button class="primary" id="gstart">Mulai belajar →</button>
+      <button class="ghost" id="gimp">📂 Import progres dari versi lama</button></div>
+    <div class="muted" id="gagr" style="font-size:12px">Centang kedua pernyataan di atas untuk melanjutkan.</div>
+  </div>`;
+  const upd = () => {
+    const v = $("#gdl").value; if(!v) return;
+    const days = Math.max(1, Math.ceil((new Date(v + "T23:59:59") - now()) / DAY));
+    const per = Math.ceil((total - Object.keys(Q).filter(id => S.items[id]).length) / days);
+    const min = estimateMinutes(per, Math.round(per*0.4), Math.round(per*0.5));
+    $("#gprev").innerHTML = `<span>${days} hari lagi</span><b>${per} soal baru/hari</b><small>≈ ${fmtDur(min*60)} belajar per hari (soal baru + review)</small>`;
+  };
+  $("#gdl").oninput = upd;
+  app.querySelectorAll("[data-days]").forEach(b => b.onclick = () => { $("#gdl").value = plus(+b.dataset.days); upd(); });
+  const agreed = () => [...app.querySelectorAll(".agr")].every(c => c.checked);
+  if(SHARE) wireDataChoice();
+  const gate = () => { const ok = agreed(); $("#gstart").disabled = $("#gimp").disabled = !ok; $("#gagr").style.display = ok ? "none" : ""; };
+  app.querySelectorAll(".agr").forEach(c => c.onchange = gate); gate();
+  $("#gimp").onclick = () => { if(!agreed() || (SHARE && !readDataChoice())) return; S.settings.agreed = dayKey(now()); $("#importFile").click(); };
+  $("#gstart").onclick = () => {
+    const v = $("#gdl").value; if(!v || v <= iso(t)) return;
+    if(!agreed() || (SHARE && !readDataChoice())) return;
+    Object.assign(S.settings, {deadline: v, sprint: true, goalSet: true, agreed: S.settings.agreed || dayKey(now())}); save(); renderHome();
+    if(!S.settings.tourDone) setTimeout(() => startTour(0), 400);
+  };
+  upd();
+}
+
+// SHARE home: editable target card at the very top
+function goalCard(){
+  const sp = sprintInfo(), total = Object.keys(Q).length;
+  const min = estimateMinutes(sp.perDay, Math.round(sp.perDay*0.4), Math.round(sp.perDay*0.5));
+  const pct = total ? Math.round(100*sp.seen/total) : 0;
+  const tmr = new Date(now()); tmr.setDate(tmr.getDate()+1);
+  return `<div class="card goal-card">
+    <div class="goal-top"><h2 style="margin:0">🎯 Target: semua soal selesai ${new Date(S.settings.deadline+"T00:00").toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"})}</h2>
+      <span class="muted" style="font-size:14px">${sp.daysLeft} hari lagi</span></div>
+    <div class="row" style="gap:18px;font-size:14px;margin:6px 0 8px">
+      <span><b>${sp.perDay}</b> soal baru/hari</span><span>≈ <b>${fmtDur(min*60)}</b>/hari</span><span><b>${sp.seen}</b>/${total} soal dikerjakan (${pct}%)</span></div>
+    <div class="goalbar"><i style="width:0%" data-w="${pct}%"></i></div>
+    <div class="row" style="margin-top:10px"><label class="muted" style="font-size:14px">Ubah target <input type="date" id="tgDate" value="${S.settings.deadline}" min="${tmr.toLocaleDateString("sv")}"></label>
+      ${[14,30,45,60].map(n=>`<button class="small ghost" data-tg="${n}">${n} hari lagi</button>`).join("")}</div>
+  </div>`;
+}
+function wireGoalCard(){
+  const set = v => { if(!v) return; S.settings.deadline = v; S.settings.sprint = true; save(); renderHome(); };
+  if($("#tgDate")) $("#tgDate").onchange = e => set(e.target.value);
+  app.querySelectorAll("[data-tg]").forEach(b => b.onclick = () => { const d = new Date(now()); d.setDate(d.getDate() + +b.dataset.tg); set(d.toLocaleDateString("sv")); });
+}
+
+// ---------- weak spots + bookmarks ----------
+// weakList(): up to 30 questions missed before, ranked by confident misses, number of misses, weakness of their
+// topics (tag accuracy) and recency; questions already mastered again (interval ≥ 21 d) go last.
+function weakList(){
+  const tagStat = {}, info = [];
+  for(const q of Object.values(Q)){
+    const h = ((S.items[q.id] || {}).hist || []).filter(x => x && typeof x[2] === "object" && x[2].pick !== undefined);
+    if(!h.length) continue;
+    const miss = h.filter(x => x[1] === 0), conf = miss.filter(x => x[2].conf === 3).length;
+    for(const t of q.tags || []){ const a = tagStat[t] = tagStat[t] || [0, 0]; a[0] += h.length; a[1] += miss.length; }
+    if(miss.length) info.push({id: q.id, miss: miss.length, conf, last: miss[miss.length - 1][0], tags: q.tags || []});
+  }
+  const tagWeak = t => { const a = tagStat[t]; return a && a[0] ? a[1] / a[0] : 0; };
+  const mastered = id => { const x = S.items[id]; return x && !x.learning && x.ivl >= 21; };
+  return info.map(x => ({...x, tw: Math.max(0, ...x.tags.map(tagWeak)), m: mastered(x.id) ? 1 : 0}))
+    .sort((a, b) => a.m - b.m || b.conf - a.conf || b.miss - a.miss || b.tw - a.tw || b.last - a.last)
+    .slice(0, 30).map(x => x.id);
+}
+function startList(ids, query){ SES = {mode: "list", query, queue: ids, again: {}, done: 0, right: 0, wrong: 0, startedNew: 0}; next(); }
+const markBtn = id => `<button class="small ghost mark ${S.marks[id] ? "on" : ""}" data-mark="${id}" title="Tandai soal">${S.marks[id] ? "🔖 Ditandai" : "🔖 Tandai"}</button>`;
+function wireMarks(){
+  app.querySelectorAll("[data-mark]").forEach(b => b.onclick = () => {
+    const id = b.dataset.mark; if(S.marks[id]) delete S.marks[id]; else S.marks[id] = now(); save();
+    app.querySelectorAll(`[data-mark="${id}"]`).forEach(x => { x.classList.toggle("on", !!S.marks[id]); x.textContent = S.marks[id] ? "🔖 Ditandai" : "🔖 Tandai"; });
+  });
+}
+
+// ---------- search (slides window.SLIDES from tools/build_search.py + questions + flashcards) ----------
+const norm = t => String(t).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+function matcher(query){
+  // every term must match; short terms (≤ 3 chars, e.g. "TB", "KAD") only as whole words
+  const terms = norm(query).split(/\s+/).filter(Boolean).map(t => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const res = terms.map(t => t.length <= 3 ? new RegExp(`(^|[^a-z0-9])${t}([^a-z0-9]|$)`) : new RegExp(t));
+  return text => { const n = norm(text); return res.every(r => r.test(n)); };
+}
+function hl(text, query, max){
+  // snippet around the first hit, with <mark>
+  const t = String(text), n = norm(t), terms = norm(query).split(/\s+/).filter(Boolean);
+  let at = -1; for(const w of terms){ const i = n.indexOf(w); if(i >= 0 && (at < 0 || i < at)) at = i; }
+  const start = Math.max(0, at - 60), cut = t.slice(start, start + (max || 220));
+  let out = esc(cut);
+  for(const w of terms.sort((a,b) => b.length - a.length)) if(w.length > 1) out = out.replace(new RegExp("(" + w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "gi"), "<mark>$1</mark>");
+  return (start ? "…" : "") + out + (start + (max || 220) < t.length ? "…" : "");
+}
+function renderSearch(query){
+  KEYH = null; VIEW = null;
+  const ok = matcher(query), deckOf = {}; window.DECKS.forEach(d => deckOf[d.slug] = d);
+  const slides = [];
+  for(const [slug, rows] of Object.entries(window.SLIDES || {})) for(const [p, title, text] of rows)
+    if(ok(title + " " + text)) slides.push({slug, p, title, text, titleHit: ok(title)});
+  slides.sort((a,b) => (b.titleHit - a.titleHit) || (a.slug.startsWith("lat:") - b.slug.startsWith("lat:")));
+  for(const x of (window.EXTRA||[]).slice().reverse()) if(ok(x.title + " " + x.text)) slides.unshift({extra: x, title: x.title});
+  const qs = Object.values(Q).filter(q => ok([q.stem, q.opts.join(" "), q.why, (q.tags||[]).join(" ")].join(" ")));
+  const cards = Object.entries(CARDS).filter(([id,c]) => Q[c.qid] && ok(c.q + " " + c.a + " " + (Q[c.qid].tags||[]).join(" ")));
+  const status = q => { const s = S.items[q.id]; return !s ? "baru" : (!s.learning && s.ivl >= 21) ? "dikuasai" : "dikerjakan"; };
+  const SHOW = 60;
+  app.innerHTML = `<div class="card">
+    <div class="row" style="margin-bottom:10px"><button class="small" id="srchBack">← Kembali</button><span class="muted" style="font-size:13px">Hasil pencarian "${esc(query)}"</span></div>
+    <form id="srchForm" class="row" style="flex-wrap:nowrap"><input id="srchQ" value="${esc(query)}" style="flex:1;margin:0"><button class="primary" type="submit">Cari</button></form>
+    <div class="row" style="margin-top:10px;font-size:14px;gap:14px"><a href="#s-slide">📑 ${slides.length} slide</a><a href="#s-soal">❓ ${qs.length} soal</a><a href="#s-card">🃏 ${cards.length} flashcard</a></div>
+    <div class="row" style="margin-top:10px">
+      <button class="primary" id="goQ" ${qs.length?"":"disabled"}>Latih ${qs.length} soal ini</button>
+      <button id="goC" ${cards.length?"":"disabled"}>Latih ${cards.length} flashcard ini</button>
+    </div>
+    <div class="muted" style="font-size:12px;margin-top:6px">Latihan dari pencarian ikut tercatat di jadwal spaced repetition. Flashcard yang belum terbuka akan dibuka.</div>
+  </div>
+  <div class="card" id="s-slide"><h2>📑 Slide materi (${slides.length})</h2>
+    ${slides.length ? `<div class="sgrid">${slides.slice(0, SHOW).map(x => x.extra ? `<figure><img data-zoom loading="lazy" src="${x.extra.src}" alt=""><figcaption><b>⭐ Materi tambahan</b><br>${esc(x.title)}</figcaption></figure>`
+      : x.slug.startsWith("lat:") ? `<figure><img data-zoom loading="lazy" src="img/latihan/${x.slug.slice(4)}-p${String(x.p).padStart(3,"0")}.jpg" alt=""><figcaption><b>${esc(((window.LATSRC||{})[x.slug.slice(4)] || x.slug.slice(4)))} · hal. ${x.p}</b><br>${esc(x.title)}</figcaption></figure>`
+      : `<figure><img data-zoom loading="lazy" src="img/${x.slug}/p${String(x.p).padStart(3,"0")}.jpg" alt=""><figcaption><b>${esc(deckOf[x.slug] ? deckOf[x.slug].name : x.slug)} · hal. ${x.p}</b><br>${esc(x.title)}</figcaption></figure>`).join("")}</div>
+      ${slides.length > SHOW ? `<div class="muted" style="font-size:13px">+${slides.length - SHOW} slide lain. Persempit kata kunci untuk melihatnya.</div>` : ""}` : `<p class="muted">Tidak ada slide yang cocok.</p>`}
+  </div>
+  <div class="card" id="s-soal"><h2>❓ Soal (${qs.length})</h2>
+    ${qs.length ? `<ul class="slist">${qs.slice(0, SHOW).map(q => `<li><span class="pill">${esc(q.deck.name)}</span><span class="pill">${status(q)}</span>${q.lat?`<span class="pill">${esc(latName(q))}</span>`:""}<br>${hl(q.stem, query)}</li>`).join("")}</ul>
+      ${qs.length > SHOW ? `<div class="muted" style="font-size:13px">+${qs.length - SHOW} soal lain (ikut dilatih).</div>` : ""}` : `<p class="muted">Tidak ada soal yang cocok.</p>`}
+  </div>
+  <div class="card" id="s-card"><h2>🃏 Flashcard (${cards.length})</h2>
+    ${cards.length ? `<ul class="slist">${cards.slice(0, SHOW).map(([id,c]) => `<li><details><summary>${hl(c.q, query, 160)} <span class="muted" style="font-size:12px">· ${esc(Q[c.qid].deck.name)}${S.items[id] ? "" : " · belum terbuka"}</span></summary><div class="fc-a" style="font-size:16px;margin:6px 0 0">${esc(c.a)}</div></details></li>`).join("")}</ul>
+      ${cards.length > SHOW ? `<div class="muted" style="font-size:13px">+${cards.length - SHOW} flashcard lain (ikut dilatih).</div>` : ""}` : `<p class="muted">Tidak ada flashcard yang cocok.</p>`}
+  </div>`;
+  $("#srchForm").onsubmit = e => { e.preventDefault(); const v = $("#srchQ").value.trim(); if(v) renderSearch(v); };
+  $("#srchBack").onclick = renderHome;
+  KEYH = e => { if(e.key === "Escape") renderHome(); };
+  const go = ids => { SES = {mode:"list", query, queue: ids, again:{}, done:0, right:0, wrong:0, startedNew:0}; next(); };
+  $("#goQ").onclick = () => go(qs.map(q => q.id).sort(() => Math.random() - .5));
+  $("#goC").onclick = () => {
+    const t = now();
+    for(const [id] of cards) if(!S.items[id]) S.items[id] = {...newState(), due: t, cardChild: true};   // unlock
+    save(); go(cards.map(([id]) => id).sort(() => Math.random() - .5));
+  };
+  window.scrollTo(0, 0);
+}
+
+// ---------- mini tour (SHARE: auto once after onboarding; ❓ Tur in the header replays it) ----------
+const TOUR = [
+  {sel: ".goal-card", t: "🎯 Target kamu", d: "Tanggal target selesai semua soal. Aplikasi menghitung berapa soal baru per hari dan perkiraan waktunya. Ubah kapan saja lewat tanggal atau tombol 14/30/45/60 hari."},
+  {sel: ".card.sprint", t: "⏱️ Hari ini", d: "Sisa beban hari ini: soal baru + review yang jatuh tempo, dalam perkiraan menit. Kalau sudah 'Selesai! 🎉', target hari ini tercapai."},
+  {sel: () => $("button[onclick=\"startSession('random')\"]")?.closest(".card"), t: "📚 Mulai belajar", d: "<b>Acak: soal + flashcard</b> = mode utama (soal baru + review + flashcard, acak lintas bab). <b>Soal saja</b> tanpa flashcard. <b>Campur, prioritas SKDI</b> mendahulukan kompetensi 4A. <b>Flashcard saja</b> untuk kartu yang jatuh tempo."},
+  {sel: null, t: "❓ Saat menjawab soal", d: "Pilih jawaban, lalu pilih seberapa yakin: <b>yakin / ragu / tebak</b> (keyboard: A–E, lalu 1/2/3). Setelah itu muncul pembahasan, slide materi, soal asli, dan pembahasan sumber. Salah atau menebak → soal diulang di sesi yang sama sampai benar, dan flashcard topiknya terbuka."},
+  {sel: null, t: "🃏 Flashcard & spaced repetition", d: "Ingat jawabannya dulu, tekan <b>Spasi</b> untuk membuka, lalu nilai: <b>Lupa / Sulit / Ingat / Mudah</b> (1–4). Aplikasi menjadwalkan ulang otomatis: makin mudah, makin lama baru muncul lagi. Di bawah pembahasan kamu juga bisa <b>✍️ Buat flashcard sendiri</b>."},
+  {sel: () => $("#srchForm")?.closest(".card"), t: "🔎 Cari materi", d: "Ketik topik (mis. <b>TB</b>, <b>KAD</b>, <b>preeklampsia</b>) untuk melihat semua slide, soal, dan flashcard terkait, lalu latih khusus topik itu."},
+  {sel: () => $(".subjgrid")?.closest(".card"), t: "📂 Per bab", d: "Progres tiap bab: hijau = dikuasai, kuning = sudah dikerjakan, biru = flashcard. Tombol <b>Review</b> dan <b>Soal baru</b> untuk belajar per bab."},
+  {sel: () => $(".heat")?.closest(".card"), t: "📈 Aktivitas & waktu belajar", d: "Kalender aktivitas, akurasi, rekor beruntun, dan menit belajar per hari (soal vs flashcard). Jam otomatis berhenti kalau kamu tidak aktif."},
+  {sel: () => $("#exp")?.closest(".card"), t: "💾 Pengaturan & cadangan", d: "Progres tersimpan di browser ini. <b>Export progres</b> sesekali sebagai cadangan, dan sebelum pindah ke versi baru aplikasi: buka versi baru → <b>Import progres</b>. Tur ini bisa diulang lewat tombol <b>❓ Tur</b> di kanan atas."}
+];
+function startTour(i){
+  i = i || 0;
+  document.querySelectorAll(".tour-hl").forEach(e => e.classList.remove("tour-hl"));
+  $("#tourBox")?.remove();
+  if(i >= TOUR.length){ S.settings.tourDone = true; save(); return; }
+  const st = TOUR[i], el = typeof st.sel === "function" ? st.sel() : st.sel ? $(st.sel) : null;
+  if(el){ el.classList.add("tour-hl"); el.scrollIntoView({block: "center", behavior: "smooth"}); } else window.scrollTo({top: 0, behavior: "smooth"});
+  document.body.insertAdjacentHTML("beforeend", `<div id="tourBox" role="dialog" aria-label="Tur fitur">
+    <div class="muted" style="font-size:12px">Tur fitur · ${i+1}/${TOUR.length}</div><h3>${st.t}</h3><p>${st.d}</p>
+    <div class="row"><button class="small ghost" id="tSkip">Lewati</button><span class="sp" style="flex:1"></span>
+      ${i ? `<button class="small" id="tPrev">← Kembali</button>` : ""}<button class="small primary" id="tNext">${i < TOUR.length-1 ? "Lanjut →" : "Selesai ✓"}</button></div></div>`);
+  $("#tNext").onclick = () => startTour(i + 1);
+  if($("#tPrev")) $("#tPrev").onclick = () => startTour(i - 1);
+  $("#tSkip").onclick = () => startTour(TOUR.length);
+}
+
+// ---------- home ----------
+function streak(){
+  let n = 0, t = now();
+  if(!S.days[dayKey(t)]) t -= DAY;
+  while(S.days[dayKey(t)]){ n++; t -= DAY; }
+  return n;
+}
+const seg = (k, n, cls) => k > 0 ? `<i class="${cls}" style="width:${100*k/n}%"></i>` : "";
+function deckStats(d){
+  const qs = d.questions, t = now();
+  let seen=0, mastered=0, due=0, cn=0, copen=0, cmast=0;
+  for(const q of qs){ const s = S.items[q.id]; if(s){ seen++; if(!s.learning && s.ivl >= 21) mastered++; } }
+  // flashcards of this deck (slide cards + own cards); "dibuka" = unlocked/reviewed at least once
+  for(const id of Object.keys(CARDS)){ if(Q[id.split("#")[0]]?.deck !== d) continue; cn++; const s = S.items[id]; if(s){ copen++; if(!s.learning && s.ivl >= 21) cmast++; } }
+  for(const [id,s] of Object.entries(S.items)) if(Q[id.split("#")[0]]?.deck === d && s.due <= t) due++;
+  return {n:qs.length, seen, mastered, due, cn, copen, cmast};
+}
+function weakTags(){
+  const m = {};
+  for(const [id,s] of Object.entries(S.items)){
+    if(id.includes("#")) continue; const q = Q[id]; if(!q) continue;
+    const miss = (s.hist||[]).filter(h=>h[1]===0).length; if(!miss) continue;
+    (q.tags||[]).forEach(t => m[t] = (m[t]||0) + miss);
+  }
+  return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,12);
+}
+function level(n){ if(!n) return 0; const r = n / goal(); return r >= 1 ? 4 : r >= .5 ? 3 : r >= .25 ? 2 : 1; }
+function activityCard(){
+  const WEEKS = 16, t = new Date(now()), dow = (t.getDay() + 6) % 7;   // Monday-first
+  const start = new Date(t); start.setDate(t.getDate() - dow - (WEEKS-1)*7);
+  let cells = "", d = new Date(start), today = dayKey(now());
+  for(let i = 0; i < WEEKS*7; i++){
+    const k = dayKey(d), n = S.days[k] || 0, fut = k > today;
+    cells += `<span data-k="${k}" data-l="${fut?0:level(n)}" class="${k===today?"today":""}${fut?" future":""}"></span>`;
+    d.setDate(d.getDate() + 1);
+  }
+  const last7 = [...Array(7)].map((_,i) => dayKey(now() - i*DAY));
+  const n7 = last7.reduce((a,k) => a + (S.days[k]||0), 0);
+  const q7 = last7.reduce((a,k) => [a[0] + (S.dq[k]?.[0]||0), a[1] + (S.dq[k]?.[1]||0)], [0,0]);
+  const total = Object.values(S.days).reduce((a,b) => a+b, 0);
+  return `<div class="card"><h2>Aktivitas harian</h2>
+    <div class="heat" role="img" aria-label="Kalender aktivitas 16 minggu terakhir">${cells}</div>
+    <div class="legend">Sedikit <span></span><span style="background:var(--h1)"></span><span style="background:var(--h2)"></span><span style="background:var(--h3)"></span><span style="background:var(--h4)"></span> Target tercapai</div>
+    <div class="kpis">
+      <div><b>${n7}</b>item 7 hari terakhir</div>
+      <div><b>${q7[0] ? Math.round(100*q7[1]/q7[0]) + "%" : "–"}</b>akurasi soal 7 hari</div>
+      <div><b>${bestStreak()}</b>rekor beruntun (hari)</div>
+    </div>
+    ${timeBlock()}
+    <div class="muted" style="font-size:12px;margin-top:8px">Total ${total} item dijawab sejak mulai.</div></div>`;
+}
+function timeBlock(){
+  const days = [...Array(7)].map((_,i) => dayKey(now() - (6-i)*DAY));      // oldest → today
+  const T = days.map(dayTime), tot = T.map(x => x.q + x.c);
+  const max = Math.max(...tot, 1), sum7 = tot.reduce((a,b) => a+b, 0), td = T[6];
+  const all = Object.values(S.time).reduce((a,d) => a + (d.q||0) + (d.c||0), 0);
+  const cols = days.map((k,i) => {
+    const lab = new Date(k + "T00:00").toLocaleDateString("id-ID", {weekday:"short"});
+    const h = x => (100 * x / max).toFixed(1) + "%";
+    return `<div class="tcol" title="${new Date(k+"T00:00").toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"short"})}: soal ${fmtDur(T[i].q)} · flashcard ${fmtDur(T[i].c)}">
+      <div class="tstack">${T[i].c ? `<i class="c" style="height:${h(T[i].c)}"></i>` : ""}${T[i].q ? `<i class="q" style="height:${h(T[i].q)}"></i>` : ""}</div>
+      <span class="tv">${tot[i] ? Math.round(tot[i]/60) : ""}</span><span class="tl${i===6?" today":""}">${i===6 ? "Hari ini" : lab}</span></div>`;
+  }).join("");
+  return `<h3 class="tth">⏱️ Waktu belajar</h3>
+    <div class="kpis">
+      <div><b>${fmtDur(td.q + td.c)}</b>hari ini</div>
+      <div><b>${fmtDur(td.q)}</b>soal hari ini</div>
+      <div><b>${fmtDur(td.c)}</b>flashcard hari ini</div>
+    </div>
+    <div class="barkey" style="margin:10px 0 0"><span style="--c:var(--good)">soal</span><span style="--c:var(--accent)">flashcard</span><span style="--c:transparent">angka = menit</span></div>
+    <div class="tchart" role="img" aria-label="Waktu belajar 7 hari terakhir">${cols}</div>
+    <div class="muted" style="font-size:12px;margin-top:6px">7 hari: ${fmtDur(sum7)} (rata-rata ${fmtDur(sum7/7)}/hari) · total ${fmtDur(all)}. Jam berhenti otomatis bila tidak ada aktivitas 2 menit atau tab tidak terlihat.</div>`;
+}
+function bestStreak(){
+  const ks = Object.keys(S.days).filter(k => S.days[k]).sort(); let best = 0, run = 0, prev = null;
+  for(const k of ks){ run = prev && (new Date(k) - new Date(prev)) === DAY ? run + 1 : 1; best = Math.max(best, run); prev = k; }
+  return best;
+}
+function wireHeat(){
+  const tip = $("#tip");
+  app.querySelectorAll(".heat span:not(.future)").forEach(c => {
+    const show = e => {
+      const k = c.dataset.k, n = S.days[k] || 0, q = S.dq[k];
+      const date = new Date(k + "T00:00").toLocaleDateString("id-ID", {weekday:"short", day:"numeric", month:"short"});
+      const tm = dayTime(k);
+      tip.textContent = `${date}: ${n} item${q && q[0] ? ` · ${q[1]}/${q[0]} soal benar` : ""}${tm.q + tm.c ? ` · ⏱️ ${fmtDur(tm.q + tm.c)} (soal ${fmtDur(tm.q)}, kartu ${fmtDur(tm.c)})` : ""}${n >= goal() ? " · target ✓" : ""}`;
+      tip.style.display = "block";
+      const r = c.getBoundingClientRect();
+      tip.style.left = Math.max(8, Math.min(innerWidth - tip.offsetWidth - 8, r.left + r.width/2 - tip.offsetWidth/2)) + "px";
+      tip.style.top = (r.top - tip.offsetHeight - 6) + "px";
+    };
+    c.addEventListener("mouseenter", show); c.addEventListener("click", show);
+    c.addEventListener("mouseleave", () => tip.style.display = "none");
+  });
+}
+function renderHome(){
+  VIEW = null;
+  if(SHARE && (!S.settings.goalSet || !S.settings.agreed || !S.settings.data)) return renderGoal();
+  if(SHARE && S.settings.data && S.settings.data.consent === "bersedia" && !S.settings.data.kontakQ) sendKontak();
+  KEYH = null; SES = null;
+  const total = Object.keys(Q).length;
+  const due = dueItems().length;
+  const mastered = Object.values(Q).filter(q => { const s=S.items[q.id]; return s && !s.learning && s.ivl>=21; }).length;
+  const cardsDue = dueItems().filter(i=>i.includes("#")).length;
+  const newLeft = Math.max(0, newLimit() - newToday());
+  const sp = sprintInfo(), dueAll = dueItems(), dueC = dueAll.filter(i => i.includes("#")).length;
+  const estMin = estimateMinutes(Math.min(newLeft, newQuestions().length) , dueAll.length - dueC, dueC);
+  const planMin = estimateMinutes(sp.perDay, Math.round(sp.perDay*0.4), Math.round(sp.perDay*0.5));
+  const hm = m => m >= 60 ? `${Math.floor(m/60)} j ${m%60} mnt` : `${m} mnt`;
+  const weak = weakTags();
+  const weakIds = weakList(), weakN = weakIds.length, markIds = Object.keys(S.marks).filter(id => Q[id]), markN = markIds.length;
+  const tc = todayCount(), pct = Math.min(100, Math.round(100*tc/goal()));
+  app.innerHTML = `
+  ${SHARE ? goalCard() : ""}
+  ${SHARE ? dataCards() : ""}
+  <div class="card">
+    <div class="goal-top"><span><b>${tc}</b> / ${goal()} item hari ini</span><span class="muted" style="font-size:14px">${tc>=goal() ? "Target tercapai ✓" : `${goal()-tc} lagi`} · 🔥 ${streak()} hari</span></div>
+    <div class="goalbar ${tc>=goal()?"done":""}"><i style="width:0%" data-w="${pct}%"></i></div>
+  </div>
+  ${S.settings.sprint ? `<div class="card sprint"><h2>${SHARE ? "⏱️ Hari ini" : `🏁 Sprint: semua soal selesai sebelum ${new Date(S.settings.deadline+"T00:00").toLocaleDateString("id-ID",{day:"numeric",month:"long"})}`}</h2>
+    <div class="row" style="gap:18px;font-size:14px">
+      <span><b>${sp.remaining}</b> soal belum dikerjakan</span><span><b>${sp.daysLeft}</b> hari lagi</span>
+      <span>target <b>${sp.perDay}</b> soal baru/hari</span><span>≈ <b>${hm(planMin)}</b>/hari</span>
+    </div>
+    <div class="left-today ${estMin===0?"done":""}"><span>Sisa hari ini</span><b>${estMin===0 ? "Selesai! 🎉" : "≈ " + hm(estMin)}</b><small>${Math.min(newLeft,newQuestions().length)} soal baru + ${dueAll.length} review</small></div>
+    <div class="muted" style="font-size:13px;margin-top:6px">Soal yang salah diulang dalam sesi sampai benar; review berikutnya dijadwalkan 2–7 hari kemudian supaya waktu fokus ke materi baru.</div></div>` : ""}
+  <div class="stats">
+    <div class="stat"><b>${due}</b><span>jatuh tempo</span></div>
+    <div class="stat"><b>${Math.min(newLeft, newQuestions().length)}</b><span>soal baru hari ini</span></div>
+    <div class="stat"><b>${total?Math.round(100*mastered/total):0}%</b><span>dikuasai (${mastered}/${total})</span></div>
+    <div class="stat"><b>${streak()}</b><span>hari beruntun</span></div>
+  </div>
+  ${activityCard()}
+  <div class="card">
+    <h2>Belajar hari ini</h2>
+    <p class="muted" style="margin-top:0;font-size:14px"><b>Acak</b>: soal (dan flashcard jatuh tempo) diacak lintas bab, seperti ujian sungguhan. Flashcard yang dilewati tetap menunggu di antrian. <b>Campur, prioritas SKDI</b>: soal baru urut dari SKDI tertinggi.</p>
+    <div class="row">
+      <button class="primary" onclick="startSession('random')" ${!due && !newLeft?"disabled":""}>Acak: soal + flashcard (${due + Math.min(newLeft,newQuestions().length)})</button>
+      <button onclick="startSession('randomq')" ${!(due-cardsDue) && !newLeft?"disabled":""}>Acak: soal saja (${due - cardsDue + Math.min(newLeft,newQuestions().length)})</button>
+      <button onclick="startSession('mix')" ${!due && !newLeft?"disabled":""}>Campur, prioritas SKDI</button>
+      <button onclick="startSession('cards')" ${!cardsDue?"disabled":""}>Flashcard saja (${cardsDue})</button>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button id="weakBtn" ${weakN?"":"disabled"}>🎯 Latih kelemahanku (${weakN})</button>
+      <button id="markBtn" ${markN?"":"disabled"}>🔖 Soal ditandai (${markN})</button>
+    </div>
+    <div class="muted" style="font-size:12px;margin-top:6px"><b>Latih kelemahanku</b>: maks. 30 soal yang paling sering salah, terutama yang dijawab "yakin" tapi salah, dari topik dengan akurasi terendah.</div>
+  </div>
+  <div class="card"><h2>🔎 Cari materi</h2>
+    <form id="srchForm" class="row" style="flex-wrap:nowrap"><input id="srchQ" placeholder="mis. TB, KAD, preeklampsia, Bell's palsy…" style="flex:1;margin:0"><button class="primary" type="submit">Cari</button></form>
+    <div class="muted" style="font-size:13px;margin-top:6px">Mencari di semua slide materi, soal, pembahasan, dan flashcard. Hasilnya bisa langsung dilatih.</div>
+  </div>
+  ${(() => { const T = window.DECKS.map(deckStats).reduce((a,x) => { for(const k in x) a[k]=(a[k]||0)+x[k]; return a; }, {});
+    const pc = (k,n) => n ? Math.round(100*k/n) : 0;
+    return T.n ? `<div class="card overall"><h2>Progress keseluruhan</h2>
+    <div class="barkey"><span style="--c:var(--good)">dikuasai</span><span style="--c:var(--touched)">sudah dikerjakan</span><span style="--c:var(--accent)">flashcard dikuasai</span><span style="--c:var(--card-touched)">flashcard dibuka</span></div>
+    <div class="ovl"><span>Soal: <b>${pc(T.seen,T.n)}%</b> dikerjakan · <b>${pc(T.mastered,T.n)}%</b> dikuasai</span><span class="meta">${T.seen}/${T.n} soal · ${T.mastered} dikuasai</span></div>
+    <div class="bar" title="${T.mastered} dikuasai · ${T.seen-T.mastered} sudah dikerjakan · ${T.n-T.seen} belum">${seg(T.mastered,T.n,"")}${seg(T.seen-T.mastered,T.n,"t")}</div>
+    <div class="ovl"><span>Flashcard: <b>${pc(T.copen,T.cn)}%</b> dibuka · <b>${pc(T.cmast,T.cn)}%</b> dikuasai</span><span class="meta">${T.copen}/${T.cn} kartu · ${T.cmast} dikuasai</span></div>
+    <div class="bar cardbar" title="${T.cmast} dikuasai · ${T.copen-T.cmast} dibuka · ${T.cn-T.copen} belum terbuka">${seg(T.cmast,T.cn,"")}${seg(T.copen-T.cmast,T.cn,"t")}</div>
+    </div>` : ""; })()}
+  <div class="card"><h2>Per bab</h2>
+    <div class="barkey"><span style="--c:var(--good)">soal dikuasai</span><span style="--c:var(--touched)">soal sudah dikerjakan</span><span style="--c:var(--accent)">flashcard dikuasai</span><span style="--c:var(--card-touched)">flashcard sudah dibuka</span></div>
+    <div class="subjgrid">${window.DECKS.length ? window.DECKS.map(d => { const x = deckStats(d); return `
+    <div class="subj">
+      <div><div class="name">${esc(d.name)}</div><div class="meta">${x.n - x.seen} belum · ${x.due} jatuh tempo</div></div>
+      <div class="row"><button class="small" onclick="startSession('deck','${d.slug}')">Review</button><button class="small" onclick="startSession('new','${d.slug}')" ${x.n===x.seen?"disabled":""}>Soal baru</button></div>
+      <div class="barlab"><span>Soal ${x.seen}/${x.n} · ${x.mastered} ✓</span><span>${x.cn ? `Kartu ${x.copen}/${x.cn} · ${x.cmast} ✓` : ""}</span></div>
+      <div class="bar" title="${x.mastered} dikuasai · ${x.seen - x.mastered} sudah dikerjakan · ${x.n - x.seen} belum">${seg(x.mastered, x.n, "")}${seg(x.seen - x.mastered, x.n, "t")}</div>
+      ${x.cn ? `<div class="bar cardbar" title="Flashcard: ${x.cmast} dikuasai · ${x.copen - x.cmast} dibuka · ${x.cn - x.copen} belum terbuka">${seg(x.cmast, x.cn, "")}${seg(x.copen - x.cmast, x.cn, "t")}</div>` : ""}
+    </div>`; }).join("") : `<p class="muted">Belum ada data. Pastikan folder <code>data/</code> ada di samping file ini.</p>`}</div>
+  </div>
+  ${weak.length?`<div class="card"><h2>Topik lemah</h2><div class="weak">${weak.map(([t,n])=>`<span class="pill">${esc(t)} · ${n}×</span>`).join("")}</div></div>`:""}
+  ${SHARE ? (S.custom.length ? `<div class="card"><h2>✍️ Flashcard buatan sendiri</h2><p class="muted" style="font-size:13px;margin:0">${S.custom.length} kartu. Kartu ikut muncul di sesi flashcard sesuai jadwal.</p></div>` : "") : S.notes.length || S.custom.length || S.reports.length ? `<div class="card"><h2>✍️ Catatan untukmu & Claude</h2>
+    <p class="muted" style="font-size:13px;margin-top:0">${S.notes.length} catatan · ${S.custom.length} flashcard buatan sendiri · ${S.reports.length} laporan/usul. Klik <b>Export catatan</b>, lalu bilang ke Claude "proses catatan saya". File tersimpan di folder Downloads.</p>
+    <ul class="cards-list">${S.notes.slice(-5).reverse().map(n => `<li><b>${esc(Q[n.qid] ? Q[n.qid].deck.name + " · " + n.qid : n.qid)}</b><br>${esc(n.text)}</li>`).join("")}</ul>
+    <div class="row" style="margin-top:8px"><button class="small" id="expNotes">Export catatan</button><button class="small ghost" id="clrNotes">Hapus catatan yang sudah diproses</button></div></div>` : ""}
+  <div class="card"><h2>${SHARE ? "Pengaturan" : "Pengaturan & cadangan"}</h2>
+    <div class="row">
+      ${SHARE ? "" : `<label class="muted" style="font-size:14px"><input type="checkbox" id="spr" ${S.settings.sprint?"checked":""}> Mode sprint sampai <input type="date" id="dl" value="${S.settings.deadline}"></label>`}
+      ${S.settings.sprint ? "" : `<label class="muted" style="font-size:14px">Soal baru/hari <select id="npd">${[10,20,30,50,100].map(n=>`<option ${n==S.settings.newPerDay?"selected":""}>${n}</option>`).join("")}</select></label>`}
+      <label class="muted" style="font-size:14px">Target harian <select id="dg">${[20,30,50,80,100,150].map(n=>`<option ${n==goal()?"selected":""}>${n}</option>`).join("")}</select></label>
+      <button class="small" id="exp">Export progres</button>
+      <button class="small" id="imp">Import progres</button>
+    </div>
+    ${SHARE && S.settings.data ? `<div class="row" style="margin-top:10px;font-size:13px"><span class="muted">Berbagi data setelah UKMPPD: <b>${S.settings.data.consent === "bersedia" ? `bersedia (${esc(S.settings.data.nick||"")}) · ${S.log.length} jawaban tercatat di perangkat ini, belum ada data belajar yang dikirim` : "tidak ikut"}</b>${S.settings.data.sentAt ? ` · terkirim ${S.settings.data.sentAt}` : ""}</span><button class="small ghost" id="dChange">Ubah pilihan</button></div>` : ""}
+    ${SHARE ? `<div class="row" style="margin-top:10px;font-size:13px"><span class="muted">Update soal: ${packInfo()}</span><button class="small" id="packBtn">📥 Pasang update soal</button><input type="file" id="packFile" accept=".json,application/json" hidden></div>
+    <div id="packMsg" style="font-size:13px;margin-top:4px"></div>` : ""}
+    ${SHARE ? `<div class="row" style="margin-top:10px;font-size:13px"><span class="muted">Mulai dari awal: hapus semua progres di perangkat ini (export dulu bila perlu).</span><button class="small ghost" id="resetAll" style="color:var(--bad)">Reset aplikasi</button></div>
+    <div id="resetWarn" style="display:none;margin-top:10px;padding:12px 14px;border:1px solid var(--bad);border-radius:10px;font-size:13px;line-height:1.5">
+      <b style="color:var(--bad)">⚠️ Semua progres di perangkat ini akan hilang permanen</b>: riwayat jawaban, jadwal review, flashcard buatan sendiri, soal ditandai, dan target. Ini tidak bisa dibatalkan.
+      Kalau masih ingin menyimpan progres, tekan <b>Export progres dulu</b>.
+      <div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap"><button class="small" id="resetExp">Export progres dulu</button><button class="small ghost" id="resetNo">Batal</button><button class="small ghost" id="resetYes" style="color:var(--bad)">Ya, hapus semua & mulai dari awal</button></div>
+    </div>` : ""}
+    <div style="margin-top:12px"><div style="font-size:14px"><b>💡 Usul fitur / perbaikan</b></div>
+      <textarea id="usulTxt" rows="2" placeholder="Fitur apa yang kamu inginkan, atau apa yang perlu diperbaiki?" style="width:100%;margin-top:6px;font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text)"></textarea>
+      <div class="row"><button class="small" id="usulSend">Kirim usul</button><span class="muted" id="usulMsg" style="font-size:12px"></span></div></div>
+    <p class="muted" style="font-size:13px;margin-bottom:0">${SHARE ? "Progres tersimpan otomatis di browser ini (per perangkat & browser). Sebelum pindah ke versi baru aplikasi: klik <b>Export progres</b> di versi lama, buka versi baru, lalu <b>Import progres</b>. Target selesai bisa diubah di kartu 🎯 paling atas." : "Progres disimpan otomatis di browser ini. Export rutin (mis. seminggu sekali) supaya aman kalau data browser terhapus."}${OFFSET?` <b>Debug: jam digeser +${fmtIvl(OFFSET)}.</b>`:""}</p>
+  </div>`;
+  if($("#npd")) $("#npd").onchange = e => { S.settings.newPerDay = +e.target.value; save(); renderHome(); };
+  if($("#spr")) $("#spr").onchange = e => { S.settings.sprint = e.target.checked; save(); renderHome(); };
+  if($("#dl")) $("#dl").onchange = e => { if(e.target.value){ S.settings.deadline = e.target.value; save(); renderHome(); } };
+  if($("#expNotes")) $("#expNotes").onclick = () => {
+    const md = ["# Catatan belajar Recall UKMPPD (" + dayKey(now()) + ")", "",
+      "## Catatan", ...S.notes.map(n => `- [${n.qid}] (${dayKey(n.t)}) ${n.text.replace(/\n/g," ")}${Q[n.qid] ? `\n  - Soal: ${Q[n.qid].stem.slice(0,140)}…` : ""}`), "",
+      "## Flashcard buatan sendiri", ...S.custom.map(c => `- [${c.qid}] Q: ${c.q} | A: ${c.a}`), "",
+      "## Laporan soal & usul fitur", ...S.reports.map(r => `- [${r.qid || "usul"}] (${dayKey(r.t)}) ${r.kind}: ${r.text.replace(/\n/g," ")}`), ""].join("\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([md], {type:"text/markdown"}));
+    a.download = `catatan-recall-${dayKey(now())}.md`; a.click();
+  };
+  if($("#clrNotes")) $("#clrNotes").onclick = () => { S.notes = []; S.reports = []; save(); renderHome(); };
+  $("#dg").onchange = e => { S.settings.dailyGoal = +e.target.value; save(); renderHome(); };
+  requestAnimationFrame(() => app.querySelectorAll("[data-w]").forEach(el => el.style.width = el.dataset.w));
+  wireHeat();
+  $("#srchForm").onsubmit = e => { e.preventDefault(); const v = $("#srchQ").value.trim(); if(v) renderSearch(v); };
+  $("#weakBtn").onclick = () => startList(weakIds, null);
+  $("#markBtn").onclick = () => startList(markIds.sort(() => Math.random() - .5), null);
+  if(SHARE){ wireGoalCard(); wireDataCards(); flushOutbox(); }
+  if($("#dChange")) $("#dChange").onclick = renderGoal;
+  if($("#packBtn")){
+    const msg = (t, bad) => { $("#packMsg").innerHTML = t; $("#packMsg").style.color = bad ? "var(--bad)" : ""; };
+    $("#packBtn").onclick = () => $("#packFile").click();
+    $("#packFile").onchange = e => { const f = e.target.files[0]; e.target.value = ""; if(f) installPack(f, msg); };
+  }
+  if($("#resetAll")){                   // warning panel with export option first; keeps the uid so the user isn't counted twice
+    const warn = $("#resetWarn");
+    $("#resetAll").onclick = () => { warn.style.display = ""; warn.scrollIntoView({block: "nearest"}); };
+    $("#resetNo").onclick = () => { warn.style.display = "none"; };
+    $("#resetExp").onclick = () => $("#exp").click();
+    $("#resetYes").onclick = () => {
+      const uid = S.settings.uid; removeEventListener("pagehide", save); save = () => {};
+      try{ localStorage.setItem(KEY, JSON.stringify({settings: uid ? {uid} : {}})); }catch(_){}
+      location.reload();
+    };
+  }
+  if($("#usulSend")) $("#usulSend").onclick = () => {
+    const t = $("#usulTxt").value.trim(); if(!t) return;
+    S.reports.push({t: now(), qid: "", kind: "Usul fitur", text: t}); if(SHARE) queue({type: "usul", text: t}); save();
+    $("#usulTxt").value = ""; $("#usulMsg").textContent = SHARE ? (COLLECT_URL ? "Terkirim, terima kasih! 🙏" : "Tersimpan; akan terkirim otomatis.") : "Tersimpan ✓ (ikut di Export catatan)"; };
+  if($("#exp")) $("#exp").onclick = () => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(S)], {type:"application/json"}));
+    a.download = SHARE ? `recall-ukmppd-progres-${dayKey(now())}.json` : `recall-ukmppd-backup-${dayKey(now())}.json`; a.click();
+  };
+  if($("#imp")) $("#imp").onclick = () => $("#importFile").click();
+}
+$("#importFile").onchange = e => {
+  const f = e.target.files[0]; if(!f) return;
+  const agreedNow = S.settings && S.settings.agreed, dataNow = S.settings && S.settings.data, uidNow = S.settings && S.settings.uid, outNow = S.outbox || [];
+  f.text().then(t => { try{ const d = JSON.parse(t); if(!d.items) throw 0; S = Object.assign({items:{},days:{},dq:{},time:{},notes:[],custom:[],marks:{},log:[],outbox:[],reports:[],probe:{}}, d); S.settings = Object.assign({newPerDay:20, dailyGoal:50, sprint:true, deadline:"2026-10-31"}, d.settings); if(SHARE){ S.settings.goalSet = true; S.settings.agreed = (d.settings && d.settings.agreed) || agreedNow; if(!(d.settings && d.settings.data) && dataNow){ S.settings.data = dataNow; S.settings.uid = S.settings.uid || uidNow; S.outbox = [...S.outbox, ...outNow]; } } for(const c of S.custom) if(Q[c.qid]) CARDS[c.id] = c; save(); renderHome(); }catch(_){ app.insertAdjacentHTML("afterbegin", `<div class="card" style="color:var(--bad)">File tidak valid.</div>`); } });
+  e.target.value = "";
+};
+document.addEventListener("keydown", e => { if(KEYH && !e.metaKey && !e.ctrlKey && !["SELECT","TEXTAREA","INPUT"].includes(e.target.tagName)) KEYH(e); });
+$("#home").onclick = renderHome;
+if(SHARE){ $("#tourBtn").style.display = ""; $("#tourBtn").onclick = () => { renderHome(); if(S.settings.goalSet && S.settings.agreed) setTimeout(() => startTour(0), 300); }; }
+
+// ---------- theme ----------
+(function(){
+  let t = null; try{ t = localStorage.getItem(THEME_KEY); }catch(e){}
+  if(t) document.documentElement.dataset.theme = t;
+  $("#themeBtn").onclick = () => {
+    const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    const n = dark ? "light" : "dark"; document.documentElement.dataset.theme = n;
+    try{ localStorage.setItem(THEME_KEY, n); }catch(e){}
+  };
+})();
+
+// ---------- update packs (SHARE: "📥 Pasang update soal" in Pengaturan; files from tools/build_update.py) ----------
+// A pack = {type:"recall-update", id, created, label, newQ, changedQ, decks:[full deck], slides:{slug:rows}, sources, extra, img:{path:dataURL}}.
+// Stored in IndexedDB (localStorage fallback), applied at startup only if newer than this package's data (window.BUILD_TS from data/_build.js).
+const PACKIMG = {}, PACK_LS = "recall-ukmppd-packs";
+let PACKS = [];
+const idb = () => new Promise((res, rej) => { const r = indexedDB.open("recall-ukmppd-packs", 1);
+  r.onupgradeneeded = () => r.result.createObjectStore("packs", {keyPath: "id"}); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+async function packsGet(){
+  try{ const db = await idb(); return await new Promise((res, rej) => { const q = db.transaction("packs").objectStore("packs").getAll(); q.onsuccess = () => res(q.result || []); q.onerror = () => rej(q.error); }); }
+  catch(_){ try{ return JSON.parse(localStorage.getItem(PACK_LS) || "[]"); }catch(_){ return []; } }
+}
+async function packPut(p){
+  try{ const db = await idb(); await new Promise((res, rej) => { const t = db.transaction("packs", "readwrite"); t.objectStore("packs").put(p); t.oncomplete = res; t.onerror = () => rej(t.error); }); }
+  catch(_){ const all = (await packsGet()).filter(x => x.id !== p.id); localStorage.setItem(PACK_LS, JSON.stringify([...all, p])); }   // throws if too big
+}
+const packLive = p => !window.BUILD_TS || p.created > window.BUILD_TS;     // older packs are already inside this package
+function applyPacks(){
+  for(const p of PACKS.filter(packLive).sort((a, b) => a.created < b.created ? -1 : 1)){
+    for(const d of p.decks || []){ const i = window.DECKS.findIndex(x => x.slug === d.slug); if(i >= 0) window.DECKS[i] = d; else window.DECKS.push(d); }
+    if(p.sources) window.LATSRC = {...(window.LATSRC || {}), ...p.sources};
+    if(p.extra) window.EXTRA = p.extra;
+    if(p.slides) window.SLIDES = {...(window.SLIDES || {}), ...p.slides};
+    Object.assign(PACKIMG, p.img || {});
+    BANK_VER = (window.BANK_VER || "dev") + "+" + p.id;
+  }
+  if(Object.keys(PACKIMG).length){                    // images shipped in a pack: swap the src of any <img> pointing at them
+    const fix = el => { const k = el.getAttribute("src"); if(PACKIMG[k]) el.src = PACKIMG[k]; };
+    new MutationObserver(ms => { for(const m of ms) for(const n of m.addedNodes) if(n.nodeType === 1){ if(n.tagName === "IMG") fix(n); n.querySelectorAll && n.querySelectorAll("img").forEach(fix); } })
+      .observe(document.body, {childList: true, subtree: true});
+  }
+}
+function packInfo(){
+  const live = PACKS.filter(packLive).sort((a, b) => a.created < b.created ? 1 : -1);
+  return live.length ? `terpasang: <b>${esc(live[0].label || live[0].id)}</b>` : "belum ada update terpasang";
+}
+async function installPack(file, out){
+  let p; try{ p = JSON.parse(await file.text()); }catch(_){ p = null; }
+  if(!p || p.type !== "recall-update" || !p.id || !p.created) return out("File ini bukan file update soal Recall UKMPPD.", true);
+  if(!packLive(p)) return out("Update ini sudah termasuk di versi aplikasimu. Tidak perlu dipasang.", true);
+  out("Memasang update…");
+  try{ await packPut(p); }catch(_){ return out("Gagal menyimpan update di browser ini (penyimpanan penuh/diblokir). Coba Chrome, atau minta versi zip lengkap terbaru.", true); }
+  out(`Terpasang: ${esc(p.label || p.id)}. Memuat ulang…`); save(); setTimeout(() => location.reload(), 1200);
+}
+
+load();
+loadData().then(async () => { if(SHARE){ PACKS = await packsGet(); applyPacks(); } buildIndex(); renderHome(); });
+</script>
+</body>
+</html>
